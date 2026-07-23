@@ -4,9 +4,15 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/).
 
-## [Unreleased]
+## [4.0.0] - 2026-07-23
 
-_No documentation available about unreleased changes as of yet._
+### Breaking Changes
+- Minimum required PHP version raised to `>= 8.2`.
+- Upgraded `PHP_CodeSniffer` dependency requirement to `^4.0.1`.
+
+### Changed
+- Modernized codebase and sniffs for full compatibility with PHP 8.4 and PHPCS 4.0.
+- Upgraded dev dependency `phpunit/phpunit` to `^13.2.4` and modernized test suite for PHPUnit 13 compatibility.
 
 ## [3.4.0] - 2026-07-16
 
