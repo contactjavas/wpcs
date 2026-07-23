@@ -10,6 +10,7 @@
 namespace WordPressCS\WordPress\Tests\Helpers\ContextHelper;
 
 use PHPCSUtils\TestUtils\UtilityMethodTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WordPressCS\WordPress\Helpers\ContextHelper;
 
 /**
@@ -21,6 +22,7 @@ use WordPressCS\WordPress\Helpers\ContextHelper;
  */
 final class IsInTypeTestUnitTest extends UtilityMethodTestCase {
 
+	// phpcs:disable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 	/**
 	 * Test is_in_type_test().
 	 *
@@ -31,12 +33,14 @@ final class IsInTypeTestUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return void
 	 */
+	#[DataProvider( 'dataIsInTypeTest' )]
 	public function testIsInTypeTest( $testMarker, $expectedResult ) {
 		$stackPtr = $this->getTargetToken( $testMarker, \T_VARIABLE );
 		$result   = ContextHelper::is_in_type_test( self::$phpcsFile, $stackPtr );
 
 		$this->assertSame( $expectedResult, $result );
 	}
+	// phpcs:enable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 
 	/**
 	 * Data provider.

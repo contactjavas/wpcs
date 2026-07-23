@@ -6,3 +6,4 @@ phpcs.xml
 .phpcs.xml
 phpstan.neon
 .phpunit.result.cache
+.phpunit.cache/

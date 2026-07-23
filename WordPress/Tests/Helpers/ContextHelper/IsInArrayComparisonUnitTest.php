@@ -10,6 +10,7 @@
 namespace WordPressCS\WordPress\Tests\Helpers\ContextHelper;
 
 use PHPCSUtils\TestUtils\UtilityMethodTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WordPressCS\WordPress\Helpers\ContextHelper;
 
 /**
@@ -21,6 +22,7 @@ use WordPressCS\WordPress\Helpers\ContextHelper;
  */
 final class IsInArrayComparisonUnitTest extends UtilityMethodTestCase {
 
+	// phpcs:disable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 	/**
 	 * Test is_in_array_comparison().
 	 *
@@ -31,12 +33,14 @@ final class IsInArrayComparisonUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return void
 	 */
+	#[DataProvider( 'dataIsInArrayComparison' )]
 	public function testIsInArrayComparison( $testMarker, $expectedResult ) {
 		$stackPtr = $this->getTargetToken( $testMarker, \T_VARIABLE );
 		$result   = ContextHelper::is_in_array_comparison( self::$phpcsFile, $stackPtr );
 
 		$this->assertSame( $expectedResult, $result );
 	}
+	// phpcs:enable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 
 	/**
 	 * Data provider.

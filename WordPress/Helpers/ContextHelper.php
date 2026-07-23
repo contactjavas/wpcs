@@ -163,15 +163,50 @@ final class ContextHelper {
 			return false;
 		}
 
+		if ( \T_NAME_QUALIFIED === $tokens[ $stackPtr ]['code']
+			|| \T_NAME_RELATIVE === $tokens[ $stackPtr ]['code']
+		) {
+			return true;
+		}
+
+		if ( \T_NAME_FULLY_QUALIFIED === $tokens[ $stackPtr ]['code'] ) {
+			// If it contains a backslash after the leading \ (e.g. \MyNS\foo) or ends with \.
+			$content = ltrim( $tokens[ $stackPtr ]['content'], '\\' );
+			if ( strpos( $content, '\\' ) !== false ) {
+				return true;
+			}
+
+			// Check if the next non-empty token is a T_STRING or T_NAME_* (e.g. \MyNS \ foo).
+			$next = $phpcsFile->findNext( Tokens::$emptyTokens, ( $stackPtr + 1 ), null, true );
+			if ( false !== $next && isset( Collections::nameTokens()[ $tokens[ $next ]['code'] ] ) ) {
+				return true;
+			}
+
+			return false;
+		}
+
 		$prev = $phpcsFile->findPrevious( Tokens::$emptyTokens, ( $stackPtr - 1 ), null, true );
 
-		if ( \T_NS_SEPARATOR !== $tokens[ $prev ]['code'] ) {
+		if ( false !== $prev ) {
+			if ( \T_NAME_QUALIFIED === $tokens[ $prev ]['code']
+				|| \T_NAME_RELATIVE === $tokens[ $prev ]['code']
+			) {
+				return true;
+			}
+
+			if ( \T_NAME_FULLY_QUALIFIED === $tokens[ $prev ]['code'] ) {
+				return self::is_token_namespaced( $phpcsFile, $prev );
+			}
+		}
+
+		if ( false === $prev || \T_NS_SEPARATOR !== $tokens[ $prev ]['code'] ) {
 			return false;
 		}
 
 		$before_prev = $phpcsFile->findPrevious( Tokens::$emptyTokens, ( $prev - 1 ), null, true );
-		if ( \T_STRING !== $tokens[ $before_prev ]['code']
-			&& \T_NAMESPACE !== $tokens[ $before_prev ]['code']
+		if ( false === $before_prev
+			|| ( isset( Collections::nameTokens()[ $tokens[ $before_prev ]['code'] ] ) === false
+				&& \T_NAMESPACE !== $tokens[ $before_prev ]['code'] )
 		) {
 			return false;
 		}
@@ -232,11 +267,15 @@ final class ContextHelper {
 
 		foreach ( $nested_parenthesis as $open => $close ) {
 			$prev_non_empty = $phpcsFile->findPrevious( Tokens::$emptyTokens, ( $open - 1 ), null, true );
-			if ( false === $prev_non_empty || \T_STRING !== $tokens[ $prev_non_empty ]['code'] ) {
+			if ( false === $prev_non_empty || ! isset( Collections::nameTokens()[ $tokens[ $prev_non_empty ]['code'] ] ) ) {
 				continue;
 			}
 
-			if ( isset( $valid_functions[ strtolower( $tokens[ $prev_non_empty ]['content'] ) ] ) === false ) {
+			$raw_function_name  = ltrim( strtolower( $tokens[ $prev_non_empty ]['content'] ), '\\' );
+			$slash_pos          = strrpos( $raw_function_name, '\\' );
+			$base_function_name = ( false !== $slash_pos ) ? substr( $raw_function_name, ( $slash_pos + 1 ) ) : $raw_function_name;
+
+			if ( isset( $valid_functions[ $base_function_name ] ) === false ) {
 				if ( false === $allow_nested ) {
 					// Function call encountered, but not to one of the allowed functions.
 					return false;
@@ -381,7 +420,7 @@ final class ContextHelper {
 		}
 
 		$tokens        = $phpcsFile->getTokens();
-		$function_name = strtolower( $tokens[ $function_ptr ]['content'] );
+		$function_name = ltrim( strtolower( $tokens[ $function_ptr ]['content'] ), '\\' );
 		if ( true === self::$arrayCompareFunctions[ $function_name ] ) {
 			return true;
 		}

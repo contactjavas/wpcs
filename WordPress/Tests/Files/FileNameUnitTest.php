@@ -9,6 +9,7 @@
 
 namespace WordPressCS\WordPress\Tests\Files;
 
+use PHP_CodeSniffer\Config;
 use PHP_CodeSniffer\Files\DummyFile;
 use PHP_CodeSniffer\Ruleset;
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
@@ -183,8 +184,19 @@ final class FileNameUnitTest extends AbstractSniffUnitTest {
 	 * @return void
 	 */
 	public function testStdIn() {
-		$config = new ConfigDouble();
-		Helper::setConfigData( 'installed_paths', dirname( dirname( __DIR__ ) ), true, $config );
+		$config         = new ConfigDouble();
+		$rootDir        = dirname( dirname( dirname( __DIR__ ) ) );
+		$installedPaths = implode(
+			',',
+			array(
+				$rootDir,
+				$rootDir . '/vendor/phpcsstandards/phpcsutils',
+				$rootDir . '/vendor/phpcsstandards/phpcsextra',
+				$rootDir . '/vendor/phpcsstandards/phpcsdevtools',
+				$rootDir . '/vendor/phpcompatibility/php-compatibility',
+			)
+		);
+		Helper::setConfigData( 'installed_paths', $installedPaths, true, $config );
 		$config->standards = array( 'WordPress' );
 		$config->sniffs    = array( 'WordPress.Files.FileName' );
 

@@ -467,7 +467,7 @@ final class PrefixAllGlobalsSniff extends AbstractFunctionParameterSniff {
 		// Add function call target for hook names and constants defined using define().
 		$parent = parent::register();
 		if ( ! empty( $parent ) ) {
-			$targets[] = \T_STRING;
+			$targets += Collections::nameTokens();
 		}
 
 		return $targets;
@@ -560,7 +560,7 @@ final class PrefixAllGlobalsSniff extends AbstractFunctionParameterSniff {
 			return $this->tokens[ $stackPtr ]['scope_closer'];
 		}
 
-		if ( \T_STRING === $this->tokens[ $stackPtr ]['code'] ) {
+		if ( isset( Collections::nameTokens()[ $this->tokens[ $stackPtr ]['code'] ] ) ) {
 			// Disallow excluding function groups for this sniff.
 			$this->exclude = array();
 
@@ -1057,6 +1057,7 @@ final class PrefixAllGlobalsSniff extends AbstractFunctionParameterSniff {
 	 * @return void
 	 */
 	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+		$matched_content = ltrim( strtolower( $matched_content ), '\\' );
 		if ( 'define' === $matched_content ) {
 			$target_param = PassedParameters::getParameterFromStack( $parameters, 1, 'constant_name' );
 

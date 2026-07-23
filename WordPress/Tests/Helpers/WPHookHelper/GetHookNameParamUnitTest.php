@@ -11,6 +11,7 @@ namespace WordPressCS\WordPress\Tests\Helpers\WPHookHelper;
 
 use PHPCSUtils\TestUtils\UtilityMethodTestCase;
 use PHPCSUtils\Utils\PassedParameters;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WordPressCS\WordPress\Helpers\WPHookHelper;
 
 /**
@@ -22,6 +23,7 @@ use WordPressCS\WordPress\Helpers\WPHookHelper;
  */
 final class GetHookNameParamUnitTest extends UtilityMethodTestCase {
 
+	// phpcs:disable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 	/**
 	 * Test get_hook_name_param().
 	 *
@@ -33,6 +35,7 @@ final class GetHookNameParamUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return void
 	 */
+	#[DataProvider( 'dataGetHookNameParam' )]
 	public function testGetHookNameParam( $testMarker, $expectedResult ) {
 		$stackPtr     = $this->getTargetToken( $testMarker, \T_STRING );
 		$functionName = self::$phpcsFile->getTokens()[ $stackPtr ]['content'];
@@ -48,6 +51,7 @@ final class GetHookNameParamUnitTest extends UtilityMethodTestCase {
 
 		$this->assertSame( $expectedResult, $result );
 	}
+	// phpcs:enable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 
 	/**
 	 * Data provider.

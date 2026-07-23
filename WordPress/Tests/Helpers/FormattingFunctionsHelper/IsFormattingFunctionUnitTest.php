@@ -9,6 +9,7 @@
 
 namespace WordPressCS\WordPress\Tests\Helpers\FormattingFunctionsHelper;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WordPressCS\WordPress\Helpers\FormattingFunctionsHelper;
 
@@ -21,6 +22,7 @@ use WordPressCS\WordPress\Helpers\FormattingFunctionsHelper;
  */
 final class IsFormattingFunctionUnitTest extends TestCase {
 
+	// phpcs:disable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 	/**
 	 * Test is_formatting_function().
 	 *
@@ -31,12 +33,14 @@ final class IsFormattingFunctionUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
+	#[DataProvider( 'dataIsFormattingFunction' )]
 	public function testIsFormattingFunction( $functionName, $expectedResult ) {
 		$this->assertSame(
 			$expectedResult,
 			FormattingFunctionsHelper::is_formatting_function( $functionName )
 		);
 	}
+	// phpcs:enable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 
 	/**
 	 * Data provider.

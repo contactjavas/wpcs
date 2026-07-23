@@ -188,6 +188,9 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 
 		switch ( $this->tokens[ $stackPtr ]['code'] ) {
 			case \T_STRING:
+			case \T_NAME_FULLY_QUALIFIED:
+			case \T_NAME_QUALIFIED:
+			case \T_NAME_RELATIVE:
 				// Prevent exclusion of any of the function groups.
 				$this->exclude = array();
 
@@ -373,6 +376,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 	 *                  normal file processing.
 	 */
 	public function process_matched_token( $stackPtr, $group_name, $matched_content ) {
+		$matched_content = ltrim( strtolower( $matched_content ), '\\' );
 		// Make sure we only deal with actual function calls, not function import use statements.
 		$next_non_empty = $this->phpcsFile->findNext( Tokens::$emptyTokens, ( $stackPtr + 1 ), null, true );
 		if ( false === $next_non_empty
@@ -384,6 +388,10 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 		}
 
 		$end = $this->tokens[ $next_non_empty ]['parenthesis_closer'];
+
+		if ( ContextHelper::is_token_namespaced( $this->phpcsFile, $stackPtr ) ) {
+			return $end;
+		}
 
 		if ( 'unsafe_printing_functions' === $group_name ) {
 			$error = $this->phpcsFile->addError(
@@ -426,7 +434,8 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 				return $end;
 			}
 
-			return $this->check_code_is_escaped( $message_param['start'], ( $message_param['end'] + 1 ) );
+			$this->check_code_is_escaped( $message_param['start'], ( $message_param['end'] + 1 ) );
+			return $end;
 		}
 
 		/*
@@ -438,7 +447,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 
 			if ( false !== $file_param ) {
 				// Check for a particular code pattern which can safely be ignored.
-				if ( preg_match( '`^[\\\\]?basename\s*\(\s*__FILE__\s*\)$`i', $file_param['clean'] ) === 1 ) {
+				if ( preg_match( '~^\\\\?basename\s*\(\s*__FILE__\s*\)$~i', $file_param['clean'] ) === 1 ) {
 					unset( $params[1], $params['file'] ); // Remove the param, whether passed positionally or named.
 				}
 			}
@@ -575,8 +584,8 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 			}
 
 			// Ignore safe PHP native constants.
-			if ( \T_STRING === $this->tokens[ $i ]['code']
-				&& isset( $this->safe_php_constants[ $this->tokens[ $i ]['content'] ] )
+			if ( isset( Collections::nameTokens()[ $this->tokens[ $i ]['code'] ] )
+				&& isset( $this->safe_php_constants[ ltrim( $this->tokens[ $i ]['content'], '\\' ) ] )
 				&& ConstantsHelper::is_use_of_global_constant( $this->phpcsFile, $i )
 			) {
 				continue;
@@ -612,7 +621,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 			}
 
 			// Check for use of *::class.
-			if ( \T_STRING === $this->tokens[ $i ]['code']
+			if ( isset( Collections::nameTokens()[ $this->tokens[ $i ]['code'] ] )
 				|| \T_VARIABLE === $this->tokens[ $i ]['code']
 				|| isset( Collections::ooHierarchyKeywords()[ $this->tokens[ $i ]['code'] ] )
 				|| \T_NAMESPACE === $this->tokens[ $i ]['code']
@@ -678,9 +687,9 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 			}
 
 			// Now check that the next token is a function call.
-			if ( \T_STRING === $this->tokens[ $i ]['code'] ) {
+			if ( isset( Collections::nameTokens()[ $this->tokens[ $i ]['code'] ] ) ) {
 				$ptr                    = $i;
-				$functionName           = $this->tokens[ $i ]['content'];
+				$functionName           = ltrim( $this->tokens[ $i ]['content'], '\\' );
 				$function_opener        = $this->phpcsFile->findNext( Tokens::$emptyTokens, ( $i + 1 ), null, true );
 				$is_formatting_function = FormattingFunctionsHelper::is_formatting_function( $functionName );
 
@@ -723,10 +732,18 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 
 						$watch = true;
 					}
+				}
 
-					// Skip pointer to after the function.
+				// Skip pointer to after the function.
+				if ( false !== $function_opener && \T_OPEN_PARENTHESIS === $this->tokens[ $function_opener ]['code'] ) {
 					if ( isset( $this->tokens[ $function_opener ]['parenthesis_closer'] ) ) {
-						$i = $this->tokens[ $function_opener ]['parenthesis_closer'];
+						if ( $is_formatting_function
+							|| $this->is_escaping_function( $functionName )
+							|| $this->is_auto_escaped_function( $functionName )
+							|| ! ContextHelper::is_token_namespaced( $this->phpcsFile, $ptr )
+						) {
+							$i = $this->tokens[ $function_opener ]['parenthesis_closer'];
+						}
 					} else {
 						// Live coding or parse error.
 						break;
@@ -738,6 +755,8 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 					|| $this->is_escaping_function( $functionName )
 					|| $this->is_auto_escaped_function( $functionName )
 				) {
+					$watch = false;
+
 					// Special case get_search_query() which is unsafe if $escaped = false.
 					if ( 'get_search_query' === strtolower( $functionName ) ) {
 						$escaped_param = PassedParameters::getParameter( $this->phpcsFile, $ptr, 1, 'escaped' );

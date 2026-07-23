@@ -48,6 +48,12 @@
 		<exclude name="WordPress.Security"/>
 		<exclude name="WordPress.WP"/>
 
+		<!-- Allow @since, @link, @deprecated tags in property docblocks and commented out code in abstract sniffs. -->
+		<exclude name="Squiz.Commenting.VariableComment.SinceTagNotAllowed"/>
+		<exclude name="Squiz.Commenting.VariableComment.LinkTagNotAllowed"/>
+		<exclude name="Squiz.Commenting.VariableComment.DeprecatedTagNotAllowed"/>
+		<exclude name="Squiz.PHP.CommentedOutCode"/>
+
 		<!-- Linting is done in a separate CI job, no need to duplicate it. -->
 		<exclude name="Generic.PHP.Syntax"/>
 	</rule>

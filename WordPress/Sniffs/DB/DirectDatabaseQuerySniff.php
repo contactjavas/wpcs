@@ -238,14 +238,16 @@ final class DirectDatabaseQuerySniff extends Sniff {
 			$scopeEnd   = $this->tokens[ $scope_function ]['scope_closer'];
 
 			for ( $i = ( $scopeStart + 1 ); $i < $scopeEnd; $i++ ) {
-				if ( \T_STRING === $this->tokens[ $i ]['code'] ) {
+				if ( isset( Collections::nameTokens()[ $this->tokens[ $i ]['code'] ] ) ) {
 					$nextNonEmpty = $this->phpcsFile->findNext( Tokens::$emptyTokens, ( $i + 1 ), null, true );
 
 					if ( \T_OPEN_PARENTHESIS !== $this->tokens[ $nextNonEmpty ]['code'] ) {
 						continue;
 					}
 
-					$content = strtolower( $this->tokens[ $i ]['content'] );
+					$content   = ltrim( strtolower( $this->tokens[ $i ]['content'] ), '\\' );
+					$slash_pos = strrpos( $content, '\\' );
+					$content   = ( false !== $slash_pos ) ? substr( $content, ( $slash_pos + 1 ) ) : $content;
 
 					if ( isset( $this->cacheDeleteFunctions[ $content ] ) ) {
 

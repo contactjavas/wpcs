@@ -10,6 +10,7 @@
 namespace WordPressCS\WordPress\Tests\Helpers\ArrayWalkingFunctionsHelper;
 
 use PHPCSUtils\TestUtils\UtilityMethodTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WordPressCS\WordPress\Helpers\ArrayWalkingFunctionsHelper;
 
 /**
@@ -30,6 +31,7 @@ final class GetCallbackParameterUnitTest extends UtilityMethodTestCase {
 		$this->assertFalse( ArrayWalkingFunctionsHelper::get_callback_parameter( self::$phpcsFile, -1 ) );
 	}
 
+	// phpcs:disable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 	/**
 	 * Test get_callback_parameter() returns the callback parameter info or false.
 	 *
@@ -41,6 +43,7 @@ final class GetCallbackParameterUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return void
 	 */
+	#[DataProvider( 'dataGetCallbackParameter' )]
 	public function testGetCallbackParameter( $testMarker, $expectedContent ) {
 		$stackPtr = $this->getTargetToken( $testMarker, array( \T_STRING, \T_NAME_FULLY_QUALIFIED ) );
 		$result   = ArrayWalkingFunctionsHelper::get_callback_parameter( self::$phpcsFile, $stackPtr );
@@ -51,6 +54,7 @@ final class GetCallbackParameterUnitTest extends UtilityMethodTestCase {
 			$this->assertSame( $expectedContent, $result['clean'] );
 		}
 	}
+	// phpcs:enable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 
 	/**
 	 * Data provider.

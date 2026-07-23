@@ -67,7 +67,7 @@ trait WPDBTrait {
 
 		// Check for wpdb.
 		if ( ( \T_VARIABLE === $tokens[ $stackPtr ]['code'] && '$wpdb' !== $tokens[ $stackPtr ]['content'] )
-			|| ( \T_STRING === $tokens[ $stackPtr ]['code'] && 'wpdb' !== strtolower( $tokens[ $stackPtr ]['content'] ) )
+			|| ( isset( Collections::nameTokens()[ $tokens[ $stackPtr ]['code'] ] ) && 'wpdb' !== ltrim( strtolower( $tokens[ $stackPtr ]['content'] ), '\\' ) )
 		) {
 			return false;
 		}
@@ -81,7 +81,7 @@ trait WPDBTrait {
 		}
 
 		// If calling the method statically, ensure we are calling the global wpdb class.
-		if ( \T_STRING === $tokens[ $stackPtr ]['code'] && ContextHelper::is_token_namespaced( $phpcsFile, $stackPtr ) ) {
+		if ( isset( Collections::nameTokens()[ $tokens[ $stackPtr ]['code'] ] ) && ContextHelper::is_token_namespaced( $phpcsFile, $stackPtr ) ) {
 			return false;
 		}
 

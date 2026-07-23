@@ -9,6 +9,7 @@
 
 namespace WordPressCS\WordPress\Tests\Helpers\UnslashingFunctionsHelper;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WordPressCS\WordPress\Helpers\UnslashingFunctionsHelper;
 
@@ -21,6 +22,7 @@ use WordPressCS\WordPress\Helpers\UnslashingFunctionsHelper;
  */
 final class IsUnslashingFunctionUnitTest extends TestCase {
 
+	// phpcs:disable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 	/**
 	 * Test is_unslashing_function().
 	 *
@@ -31,12 +33,14 @@ final class IsUnslashingFunctionUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
+	#[DataProvider( 'dataIsUnslashingFunction' )]
 	public function testIsUnslashingFunction( $functionName, $expectedResult ) {
 		$this->assertSame(
 			$expectedResult,
 			UnslashingFunctionsHelper::is_unslashing_function( $functionName )
 		);
 	}
+	// phpcs:enable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 
 	/**
 	 * Data provider.

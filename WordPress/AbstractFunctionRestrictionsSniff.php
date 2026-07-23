@@ -10,6 +10,7 @@
 namespace WordPressCS\WordPress;
 
 use PHP_CodeSniffer\Util\Tokens;
+use PHPCSUtils\Tokens\Collections;
 use PHPCSUtils\Utils\Context;
 use PHPCSUtils\Utils\MessageHelper;
 use WordPressCS\WordPress\Helpers\ContextHelper;
@@ -123,9 +124,7 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 			return array();
 		}
 
-		return array(
-			\T_STRING,
-		);
+		return Collections::nameTokens();
 	}
 
 	/**
@@ -204,7 +203,8 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 		// Preliminary check. If the content of the T_STRING is not one of the functions we're
 		// looking for, we can bow out before doing the heavy lifting of checking whether
 		// this is a function call.
-		if ( preg_match( $this->prelim_check_regex, $this->tokens[ $stackPtr ]['content'] ) !== 1 ) {
+		$content = ltrim( $this->tokens[ $stackPtr ]['content'], '\\' );
+		if ( preg_match( $this->prelim_check_regex, $content ) !== 1 ) {
 			return;
 		}
 
@@ -286,7 +286,7 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 *                  normal file processing.
 	 */
 	public function check_for_matches( $stackPtr ) {
-		$token_content = strtolower( $this->tokens[ $stackPtr ]['content'] );
+		$token_content = strtolower( ltrim( $this->tokens[ $stackPtr ]['content'], '\\' ) );
 		$skip_to       = array();
 
 		foreach ( $this->groups as $groupName => $group ) {

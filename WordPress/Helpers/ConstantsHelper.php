@@ -55,7 +55,7 @@ final class ConstantsHelper {
 		}
 
 		// Is this one of the tokens this function handles ?
-		if ( \T_STRING !== $tokens[ $stackPtr ]['code'] ) {
+		if ( ! isset( Collections::nameTokens()[ $tokens[ $stackPtr ]['code'] ] ) ) {
 			return false;
 		}
 

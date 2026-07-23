@@ -123,29 +123,34 @@ abstract class AbstractClassRestrictionsSniff extends AbstractFunctionRestrictio
 
 		if ( \in_array( $token['code'], array( \T_NEW, \T_EXTENDS, \T_IMPLEMENTS ), true ) ) {
 			if ( \T_NEW === $token['code'] ) {
-				$nextNonEmpty = $this->phpcsFile->findNext( Tokens::$emptyTokens, ( $stackPtr + 1 ), null, true );
+				$nameStart = $this->phpcsFile->findNext( Tokens::$emptyTokens, ( $stackPtr + 1 ), null, true );
 
-				if ( false === $nextNonEmpty
-					|| \in_array( $this->tokens[ $nextNonEmpty ]['code'], array( \T_READONLY, \T_ANON_CLASS, \T_ATTRIBUTE ), true )
+				if ( false === $nameStart
+					|| \in_array( $this->tokens[ $nameStart ]['code'], array( \T_READONLY, \T_ANON_CLASS, \T_ATTRIBUTE ), true )
 				) {
 					// Live coding or anonymous class. Bow out.
 					return false;
 				}
 
-				$nameEnd = ( $this->phpcsFile->findNext( array( \T_OPEN_PARENTHESIS, \T_WHITESPACE, \T_SEMICOLON, \T_CLOSE_PARENTHESIS, \T_CLOSE_TAG ), ( $stackPtr + 2 ) ) - 1 );
+				$nameEnd = ( $this->phpcsFile->findNext( array( \T_OPEN_PARENTHESIS, \T_WHITESPACE, \T_SEMICOLON, \T_CLOSE_PARENTHESIS, \T_CLOSE_TAG ), ( $nameStart + 1 ) ) - 1 );
+				if ( false === $nameEnd || $nameEnd < $nameStart ) {
+					$nameEnd = $nameStart;
+				}
+
+				$classname = GetTokensAsString::noEmpties( $this->phpcsFile, $nameStart, $nameEnd );
+				$classname = $this->get_namespaced_classname( $classname, ( $stackPtr - 1 ) );
 			} else {
 				$nameEnd = ( $this->phpcsFile->findNext( array( \T_OPEN_CURLY_BRACKET, \T_WHITESPACE ), ( $stackPtr + 2 ) ) - 1 );
-			}
-
-			if ( isset( $this->tokens[ $stackPtr + 2 ] ) && false !== $nameEnd ) {
-				$classname = GetTokensAsString::noEmpties( $this->phpcsFile, ( $stackPtr + 2 ), $nameEnd );
-				$classname = $this->get_namespaced_classname( $classname, ( $stackPtr - 1 ) );
+				if ( isset( $this->tokens[ $stackPtr + 2 ] ) && false !== $nameEnd ) {
+					$classname = GetTokensAsString::noEmpties( $this->phpcsFile, ( $stackPtr + 2 ), $nameEnd );
+					$classname = $this->get_namespaced_classname( $classname, ( $stackPtr - 1 ) );
+				}
 			}
 		}
 
 		if ( \T_DOUBLE_COLON === $token['code'] ) {
 			$nameEnd = $this->phpcsFile->findPrevious( Tokens::$emptyTokens, ( $stackPtr - 1 ), null, true );
-			if ( \T_STRING !== $this->tokens[ $nameEnd ]['code'] ) {
+			if ( ! isset( Collections::nameTokens()[ $this->tokens[ $nameEnd ]['code'] ] ) ) {
 				// Hierarchy keyword or object stored in variable.
 				return false;
 			}

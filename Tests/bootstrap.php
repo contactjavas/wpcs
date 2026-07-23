@@ -45,6 +45,13 @@ if ( false !== $phpcsDir
 ) {
 	require_once $phpcsDir . $ds . 'autoload.php';
 	require_once $phpcsDir . $ds . 'tests' . $ds . 'bootstrap.php'; // PHPUnit 6.x+ support.
+
+	// PHPCS 4.0 compatibility: Alias AbstractSniffTestCase to AbstractSniffUnitTest.
+	if ( ! class_exists( 'PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest' )
+		&& class_exists( 'PHP_CodeSniffer\Tests\Standards\AbstractSniffTestCase' )
+	) {
+		class_alias( 'PHP_CodeSniffer\Tests\Standards\AbstractSniffTestCase', 'PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest' );
+	}
 } else {
 	echo 'Uh oh... can\'t find PHPCS.
 

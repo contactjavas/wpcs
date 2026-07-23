@@ -35,11 +35,14 @@ final class ValidationHelper {
 	 * @var array<int|string, string>
 	 */
 	private static $targets = array(
-		\T_ISSET          => 'construct',
-		\T_EMPTY          => 'construct',
-		\T_STRING         => 'function_call',
-		\T_COALESCE       => 'coalesce',
-		\T_COALESCE_EQUAL => 'coalesce',
+		\T_ISSET                => 'construct',
+		\T_EMPTY                => 'construct',
+		\T_STRING               => 'function_call',
+		\T_NAME_FULLY_QUALIFIED => 'function_call',
+		\T_NAME_QUALIFIED       => 'function_call',
+		\T_NAME_RELATIVE        => 'function_call',
+		\T_COALESCE             => 'coalesce',
+		\T_COALESCE_EQUAL       => 'coalesce',
 	);
 
 	/**
@@ -219,7 +222,7 @@ final class ValidationHelper {
 
 				case 'function_call':
 					// Only check calls to array_key_exists() and key_exists().
-					if ( isset( self::$key_exists_functions[ strtolower( $tokens[ $i ]['content'] ) ] ) === false ) {
+					if ( isset( self::$key_exists_functions[ ltrim( strtolower( $tokens[ $i ]['content'] ), '\\' ) ] ) === false ) {
 						continue 2;
 					}
 

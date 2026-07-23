@@ -10,6 +10,8 @@
 namespace WordPressCS\WordPress\Tests\Helpers\ContextHelper;
 
 use PHPCSUtils\TestUtils\UtilityMethodTestCase;
+use PHPCSUtils\Tokens\Collections;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WordPressCS\WordPress\Helpers\ContextHelper;
 
 /**
@@ -154,6 +156,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 		$this->assertFalse( $result );
 	}
 
+	// phpcs:disable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 	/**
 	 * Test that is_in_function_call() matches regardless of the case of $valid_functions keys.
 	 *
@@ -163,6 +166,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return void
 	 */
+	#[DataProvider( 'dataIsInFunctionCallShouldMatchRegardlessOfValidFunctionsKeyCase' )]
 	public function testIsInFunctionCallShouldMatchRegardlessOfValidFunctionsKeyCase( $functionName ) {
 		$insideFunctionPtr = $this->getTargetToken( '/* testLowercaseNameInsideCall */', \T_VARIABLE );
 		$expected          = $this->getTargetToken( '/* testLowercaseName */', \T_STRING );
@@ -176,6 +180,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 
 		$this->assertSame( $expected, $result );
 	}
+	// phpcs:enable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 
 	/**
 	 * Data provider.
@@ -198,6 +203,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 		);
 	}
 
+	// phpcs:disable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 	/**
 	 * Test is_in_function_call() with specific parameters.
 	 *
@@ -215,6 +221,10 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return void
 	 */
+	#[DataProvider( 'dataIsInFunctionCallWithDefaultParams' )]
+	#[DataProvider( 'dataIsInFunctionCallWithGlobalFalse' )]
+	#[DataProvider( 'dataIsInFunctionCallWithNestedTrue' )]
+	#[DataProvider( 'dataIsInFunctionCallWithGlobalFalseNestedTrue' )]
 	public function testIsInFunctionCall( $marker, $tokenType, $shouldMatch, $expectedMarker, $params ) {
 		$insideFunctionPtr = $this->getTargetToken( $marker, $tokenType );
 		$result            = ContextHelper::is_in_function_call(
@@ -230,11 +240,12 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 
 		$expected = false;
 		if ( true === $shouldMatch ) {
-			$expected = $this->getTargetToken( $expectedMarker, \T_STRING );
+			$expected = $this->getTargetToken( $expectedMarker, Collections::nameTokens() );
 		}
 
 		$this->assertSame( $expected, $result );
 	}
+	// phpcs:enable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 
 	/**
 	 * Data provider.
@@ -393,7 +404,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 			),
 			'fully_qualified_namespaced_function' => array(
 				'marker'         => '/* testFullyQualifiedNamespacedFunctionInsideCall */',
-				'tokenType'      => \T_NULL,
+				'tokenType'      => array( \T_NULL, \T_STRING ),
 				'shouldMatch'    => self::EXPECT_NON_GLOBAL_ONLY,
 				'expectedMarker' => '/* testFullyQualifiedNamespacedFunction */',
 			),

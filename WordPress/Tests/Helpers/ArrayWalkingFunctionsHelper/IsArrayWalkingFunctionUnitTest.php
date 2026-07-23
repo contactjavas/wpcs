@@ -9,6 +9,7 @@
 
 namespace WordPressCS\WordPress\Tests\Helpers\ArrayWalkingFunctionsHelper;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WordPressCS\WordPress\Helpers\ArrayWalkingFunctionsHelper;
 
@@ -21,6 +22,7 @@ use WordPressCS\WordPress\Helpers\ArrayWalkingFunctionsHelper;
  */
 final class IsArrayWalkingFunctionUnitTest extends TestCase {
 
+	// phpcs:disable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 	/**
 	 * Test is_array_walking_function().
 	 *
@@ -31,12 +33,14 @@ final class IsArrayWalkingFunctionUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
+	#[DataProvider( 'dataIsArrayWalkingFunction' )]
 	public function testIsArrayWalkingFunction( $functionName, $expectedResult ) {
 		$this->assertSame(
 			$expectedResult,
 			ArrayWalkingFunctionsHelper::is_array_walking_function( $functionName )
 		);
 	}
+	// phpcs:enable PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 
 	/**
 	 * Data provider.

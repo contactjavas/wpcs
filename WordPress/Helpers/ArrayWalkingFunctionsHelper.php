@@ -71,7 +71,7 @@ final class ArrayWalkingFunctionsHelper {
 	 * @return bool
 	 */
 	public static function is_array_walking_function( $functionName ) {
-		return isset( self::$arrayWalkingFunctions[ strtolower( $functionName ) ] );
+		return isset( self::$arrayWalkingFunctions[ ltrim( strtolower( $functionName ), '\\' ) ] );
 	}
 
 	/**
@@ -93,7 +93,7 @@ final class ArrayWalkingFunctionsHelper {
 			return false;
 		}
 
-		$functionName = strtolower( $tokens[ $stackPtr ]['content'] );
+		$functionName = ltrim( strtolower( $tokens[ $stackPtr ]['content'] ), '\\' );
 		if ( isset( self::$arrayWalkingFunctions[ $functionName ] ) === false ) {
 			return false;
 		}

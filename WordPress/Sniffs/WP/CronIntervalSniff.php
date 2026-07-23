@@ -153,8 +153,13 @@ final class CronIntervalSniff extends Sniff {
 			) {
 				// Ok, now see if we can find the function name.
 				$beforeOpen = $this->phpcsFile->findPrevious( Tokens::$emptyTokens, ( $before - 1 ), null, true );
-				if ( false !== $beforeOpen && \T_STRING === $this->tokens[ $beforeOpen ]['code'] ) {
-					$found_function = $this->find_function_by_name( $this->tokens[ $beforeOpen ]['content'] );
+				if ( false !== $beforeOpen && isset( Collections::nameTokens()[ $this->tokens[ $beforeOpen ]['code'] ] ) ) {
+					$functionName = ltrim( $this->tokens[ $beforeOpen ]['content'], '\\' );
+					if ( strpos( $functionName, '\\' ) !== false ) {
+						$parts        = explode( '\\', $functionName );
+						$functionName = end( $parts );
+					}
+					$found_function = $this->find_function_by_name( $functionName );
 					if ( false !== $found_function ) {
 						$functionPtr = $found_function;
 					}
@@ -233,7 +238,7 @@ final class CronIntervalSniff extends Sniff {
 							continue;
 						}
 
-						$value .= $this->tokens[ $j ]['content'];
+						$value .= ltrim( $this->tokens[ $j ]['content'], '\\' );
 					}
 
 					if ( $parentheses_count > 0 ) {

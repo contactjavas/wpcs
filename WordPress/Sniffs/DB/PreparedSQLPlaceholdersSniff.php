@@ -162,10 +162,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 	 * @return array
 	 */
 	public function register() {
-		return array(
-			\T_VARIABLE,
-			\T_STRING,
-		);
+		return Collections::nameTokens() + array( \T_VARIABLE => \T_VARIABLE );
 	}
 
 	/**
@@ -224,9 +221,9 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 				}
 
 				// Detect a specific pattern for variable replacements in combination with `IN`.
-				if ( \T_STRING === $this->tokens[ $i ]['code'] ) {
+				if ( isset( Collections::nameTokens()[ $this->tokens[ $i ]['code'] ] ) ) {
 
-					if ( 'sprintf' === strtolower( $this->tokens[ $i ]['content'] ) ) {
+					if ( 'sprintf' === ltrim( strtolower( $this->tokens[ $i ]['content'] ), '\\' ) ) {
 						$sprintf_parameters = PassedParameters::getParameters( $this->phpcsFile, $i );
 
 						if ( ! empty( $sprintf_parameters ) ) {
@@ -265,7 +262,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 						}
 						unset( $sprintf_parameters, $valid_sprintf, $last_param );
 
-					} elseif ( 'implode' === strtolower( $this->tokens[ $i ]['content'] ) ) {
+					} elseif ( 'implode' === ltrim( strtolower( $this->tokens[ $i ]['content'] ), '\\' ) ) {
 						$ignore_tokens = Tokens::$emptyTokens + array(
 							\T_STRING_CONCAT => \T_STRING_CONCAT,
 							\T_NS_SEPARATOR  => \T_NS_SEPARATOR,
@@ -679,8 +676,8 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 				$sprintf_param['end'],
 				true
 			);
-			if ( \T_STRING === $this->tokens[ $implode ]['code']
-				&& 'implode' === strtolower( $this->tokens[ $implode ]['content'] )
+			if ( isset( Collections::nameTokens()[ $this->tokens[ $implode ]['code'] ] )
+				&& 'implode' === ltrim( strtolower( $this->tokens[ $implode ]['content'] ), '\\' )
 			) {
 				if ( $this->analyse_implode( $implode ) === true ) {
 					++$found;
@@ -737,8 +734,8 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 			true
 		);
 
-		if ( \T_STRING !== $this->tokens[ $array_fill ]['code']
-			|| 'array_fill' !== strtolower( $this->tokens[ $array_fill ]['content'] )
+		if ( isset( Collections::nameTokens()[ $this->tokens[ $array_fill ]['code'] ] ) === false
+			|| 'array_fill' !== ltrim( strtolower( $this->tokens[ $array_fill ]['content'] ), '\\' )
 		) {
 			return false;
 		}

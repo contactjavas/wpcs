@@ -145,6 +145,9 @@ final class PreparedSQLSniff extends Sniff {
 		return array(
 			\T_VARIABLE,
 			\T_STRING,
+			\T_NAME_FULLY_QUALIFIED,
+			\T_NAME_QUALIFIED,
+			\T_NAME_RELATIVE,
 		);
 	}
 
@@ -206,8 +209,8 @@ final class PreparedSQLSniff extends Sniff {
 				}
 			}
 
-			if ( \T_STRING === $this->tokens[ $this->i ]['code'] ) {
-				$content_lowercase = strtolower( $this->tokens[ $this->i ]['content'] );
+			if ( isset( Collections::nameTokens()[ $this->tokens[ $this->i ]['code'] ] ) ) {
+				$content_lowercase = ltrim( strtolower( $this->tokens[ $this->i ]['content'] ), '\\' );
 
 				if (
 					isset( $this->SQLEscapingFunctions[ $content_lowercase ] )
