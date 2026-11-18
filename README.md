@@ -1,26 +1,18 @@
 <div aria-hidden="true">
 
-[![Latest Stable Version](https://img.shields.io/packagist/v/wp-coding-standards/wpcs?label=stable)](https://packagist.org/packages/wp-coding-standards/wpcs)
-[![Release Date of the Latest Version](https://img.shields.io/github/release-date/WordPress/WordPress-Coding-Standards.svg?maxAge=1800)](https://github.com/WordPress/WordPress-Coding-Standards/releases)
-:construction:
-[![Latest Unstable Version](https://img.shields.io/badge/unstable-dev--develop-e68718.svg?maxAge=2419200)](https://packagist.org/packages/wp-coding-standards/wpcs#dev-develop)
-
-[![Basic QA checks](https://github.com/WordPress/WordPress-Coding-Standards/actions/workflows/basic-qa.yml/badge.svg)](https://github.com/WordPress/WordPress-Coding-Standards/actions/workflows/basic-qa.yml)
-[![Unit Tests](https://github.com/WordPress/WordPress-Coding-Standards/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/WordPress/WordPress-Coding-Standards/actions/workflows/unit-tests.yml)
-[![codecov.io](https://codecov.io/gh/WordPress/WordPress-Coding-Standards/graph/badge.svg?token=UzFYn0RzVG&branch=develop)](https://codecov.io/gh/WordPress/WordPress-Coding-Standards?branch=develop)
-
-[![Minimum PHP Version](https://img.shields.io/packagist/php-v/wp-coding-standards/wpcs.svg?maxAge=3600)](https://packagist.org/packages/wp-coding-standards/wpcs)
-[![Tested on PHP 7.2 to 8.6](https://img.shields.io/badge/tested%20on-PHP%207.2%20|%207.3%20|%207.4%20|%208.0%20|%208.1%20|%208.2%20|%208.3%20|%208.4%20|%208.5%20|%208.6-green.svg?maxAge=2419200)](https://github.com/WordPress/WordPress-Coding-Standards/actions/workflows/unit-tests.yml)
-
-[![License: MIT](https://img.shields.io/github/license/WordPress/WordPress-Coding-Standards)](https://github.com/WordPress/WordPress-Coding-Standards/blob/develop/LICENSE)
-[![Total Downloads](https://img.shields.io/packagist/dt/wp-coding-standards/wpcs)](https://packagist.org/packages/wp-coding-standards/wpcs/stats)
+[![CI](https://github.com/contactjavas/wpcs/actions/workflows/ci.yml/badge.svg)](https://github.com/contactjavas/wpcs/actions/workflows/ci.yml)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.4-8892BF.svg)](https://www.php.net/supported-versions.php)
+[![Tested on PHP 8.4 to 8.5](https://img.shields.io/badge/tested%20on-PHP%208.4%20|%208.5-green.svg)](https://github.com/contactjavas/wpcs/actions/workflows/ci.yml)
+[![PHP_CodeSniffer 4](https://img.shields.io/badge/PHP__CodeSniffer-4.x-blue.svg)](https://github.com/PHPCSStandards/PHP_CodeSniffer)
+[![License: MIT](https://img.shields.io/github/license/contactjavas/wpcs)](https://github.com/contactjavas/wpcs/blob/develop/LICENSE)
 
 </div>
 
 
-# WordPress Coding Standards for PHP_CodeSniffer
+# WordPress Coding Standards for PHP_CodeSniffer (modern fork)
 
 * [Introduction](#introduction)
+    + [Differences from upstream WordPressCS](#differences-from-upstream-wordpresscs)
 * [Minimum Requirements](#minimum-requirements)
 * [Installation](#installation)
     + [Composer Project-based Installation](#composer-project-based-installation)
@@ -48,16 +40,27 @@
 
 This project is a collection of [PHP_CodeSniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer) rules (sniffs) to validate code developed for WordPress. It ensures code quality and adherence to coding conventions, especially the official [WordPress Coding Standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/).
 
-**This project needs funding. [Find out how you can help](#funding).**
+`contactjavas/wpcs` is a fork of [WordPressCS](https://github.com/WordPress/WordPress-Coding-Standards) for modern PHP. It is used by [Modern WPCS Ruleset](https://github.com/contactjavas/modern-wpcs-ruleset), and fixes from upstream WordPressCS are merged in regularly.
+
+### Differences from upstream WordPressCS
+
+* Requires PHP 8.4+ and PHP_CodeSniffer 4 (upstream: PHP 7.2+, PHP_CodeSniffer 3).
+* Understands PHP_CodeSniffer 4's tokenization of names (`\foo()`, `My\foo()`, `namespace\foo()` are single tokens).
+* The code base uses `declare(strict_types=1)` and native parameter, return and property types throughout.
+  If you **extend** the abstract sniffs (`WordPressCS\WordPress\Abstract*Sniff`, `Sniff`) or the helper traits in
+  your own standard, your overriding methods need matching signatures. Methods that may return a stack pointer
+  (`process_token()`, `process_matched_token()`, `process_parameters()`, …) return `?int`.
+* Sniff names, error codes and properties are unchanged, so existing `phpcs.xml` files keep working.
 
 ## Minimum Requirements
 
-The WordPress Coding Standards package requires:
-* PHP 7.2 or higher with the following extensions enabled:
+This package requires:
+* PHP 8.4 or higher with the following extensions enabled:
     - [Filter](https://www.php.net/book.filter)
     - [libxml](https://www.php.net/book.libxml)
     - [Tokenizer](https://www.php.net/book.tokenizer)
     - [XMLReader](https://www.php.net/book.xmlreader)
+* [PHP_CodeSniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer) 4.0.1 or higher (installed automatically)
 * [Composer](https://getcomposer.org/)
 
 For the best results, it is recommended to also ensure the following additional PHP extensions are enabled:
@@ -66,26 +69,28 @@ For the best results, it is recommended to also ensure the following additional 
 
 ## Installation
 
-As of [WordPressCS 3.0.0](https://make.wordpress.org/core/2023/08/21/wordpresscs-3-0-0-is-now-available/), installation via Composer using the below instructions is the only supported type of installation.
+Installation via Composer is the only supported type of installation. This fork is not published on Packagist, so add its GitHub repository to your `composer.json` first.
 
 [Composer](https://getcomposer.org/) will automatically install the project dependencies and register the rulesets from WordPressCS and other external standards with PHP_CodeSniffer using the [Composer PHPCS plugin](https://github.com/PHPCSStandards/composer-installer).
 
-> If you are upgrading from an older WordPressCS version to version 3.0.0, please read the [Upgrade guide for ruleset maintainers and end-users](https://github.com/WordPress/WordPress-Coding-Standards/wiki/Upgrade-Guide-to-WordPressCS-3.0.0-for-ruleset-maintainers) first!
+> Most users will want [Modern WPCS Ruleset](https://github.com/contactjavas/modern-wpcs-ruleset) instead, which installs this package for you.
 
 ### Composer Project-based Installation
 
 Run the following from the root of your project:
 ```bash
+composer config repositories.wpcs vcs https://github.com/contactjavas/wpcs
 composer config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
-composer require --dev wp-coding-standards/wpcs:"^3.0"
+composer require --dev contactjavas/wpcs:"^5.0"
 ```
 
 ### Composer Global Installation
 
 Alternatively, you may want to install this standard globally:
 ```bash
+composer global config repositories.wpcs vcs https://github.com/contactjavas/wpcs
 composer global config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
-composer global require --dev wp-coding-standards/wpcs:"^3.0"
+composer global require --dev contactjavas/wpcs:"^5.0"
 ```
 
 ### Updating your WordPressCS install to a newer version
@@ -93,10 +98,10 @@ composer global require --dev wp-coding-standards/wpcs:"^3.0"
 If you installed WordPressCS using either of the above commands, you can upgrade to a newer version as follows:
 ```bash
 # Project local install
-composer update wp-coding-standards/wpcs --with-dependencies
+composer update contactjavas/wpcs --with-dependencies
 
 # Global install
-composer global update wp-coding-standards/wpcs --with-dependencies
+composer global update contactjavas/wpcs --with-dependencies
 ```
 
 ### Using your WordPressCS install
@@ -111,7 +116,6 @@ vendor/bin/phpcs -ps . --standard=WordPress
 ```
 
 > **Pro-tip**: For the convenience of using `phpcs` as a global command, use the _Global install_ method and add the path to the `%USER_DIRECTORY%/Composer/vendor/bin` directory to the `PATH` environment variable for your operating system.
-
 
 ##  Rulesets
 

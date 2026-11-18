@@ -4,6 +4,43 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/).
 
+## [Unreleased]
+
+## [5.0.0] - 2026-11-19
+
+**Includes the upstream WordPressCS 3.4.1 security fix. All users of the `WordPress` and `WordPress-Extra` rulesets are advised to update.**
+
+### Breaking Changes
+- Minimum required PHP version raised to `^8.4` (was `>= 8.2`).
+- `declare(strict_types=1)` and native parameter, return and property types throughout the code base.
+    This only affects standards which **extend** WordPressCS classes (`WordPressCS\WordPress\Sniff`, the `Abstract*Sniff` classes, the helper classes and traits, and the non-final sniffs): overriding methods need compatible signatures, and redeclared non-public properties (e.g. `$phpcsFile`, `$tokens`) need the same type.
+    Methods which may return a stack pointer to skip to (`process()`, `process_token()`, `check_for_matches()`, `process_matched_token()`, `process_parameters()`, `process_no_parameters()`, `process_first_class_callable()`) now return `?int` instead of `int|void`.
+    Sniff names, error codes and public (ruleset-configurable) properties are unchanged. Configurable properties stay untyped, so existing `phpcs.xml` files keep working.
+
+### Added
+- Everything from upstream WordPressCS `develop` after 3.4.0 (merged in 186a0969), including:
+    - **SECURITY FIX** from WordPressCS 3.4.1: `WordPress.WP.EnqueuedResourceParameters` no longer runs `eval()` on scanned code (upstream [#2771], commit 72624446). See the [security advisory][sec-1].
+    - `apply_shortcodes()` is treated as an auto-escaped function (upstream [#2782], commit 475e7223).
+    - XML documentation for `WordPress.PHP.TypeCasts` (upstream [#2738], commit 87988814).
+    - New tests for `ContextHelper::is_token_namespaced()`, `EscapingFunctionsTrait`, `PrintingFunctionsTrait` and `SanitizationHelperTrait` (upstream [#2728], [#2755], [#2716], [#2756]), adapted to PHPUnit 13 and PHP_CodeSniffer 4.
+
+### Changed
+- The minimum required `PHPCSUtils` version to 1.2.3 and `PHPCSExtra` version to 1.5.1.
+- Continuous integration is a single `ci.yml` workflow on PHP 8.4 and 8.5: composer validation, lint, code style, unit tests, sniff completeness, ruleset checks and a fixer-conflict check.
+- `phpunit.xml.dist` fails the test run on PHP deprecations, notices and warnings.
+- Text files are always checked out with LF line endings.
+
+### Fixed
+- `WordPress.DateTime.CurrentTimeTimestamp`: the fixer dropped the leading backslash of a fully qualified `\current_time()` call under PHP_CodeSniffer 4.
+- `WordPress.PHP.NoSilencedErrors`: a PHP deprecation (reported as an internal error) when `customAllowedFunctionsList` contained an empty item.
+
+[#2716]: https://github.com/WordPress/WordPress-Coding-Standards/pull/2716
+[#2728]: https://github.com/WordPress/WordPress-Coding-Standards/pull/2728
+[#2738]: https://github.com/WordPress/WordPress-Coding-Standards/pull/2738
+[#2755]: https://github.com/WordPress/WordPress-Coding-Standards/pull/2755
+[#2756]: https://github.com/WordPress/WordPress-Coding-Standards/pull/2756
+[#2782]: https://github.com/WordPress/WordPress-Coding-Standards/pull/2782
+
 ## [4.0.0] - 2026-07-23
 
 ### Breaking Changes
@@ -1823,7 +1860,9 @@ Initial tagged release.
 [PHP_CodeSniffer]:       https://github.com/PHPCSStandards/PHP_CodeSniffer
 [PHPCompatibility]:      https://github.com/PHPCompatibility/PHPCompatibility
 
-[Unreleased]: https://github.com/WordPress/WordPress-Coding-Standards/compare/main...HEAD
+[Unreleased]: https://github.com/contactjavas/wpcs/compare/v5.0.0...HEAD
+[5.0.0]: https://github.com/contactjavas/wpcs/compare/v4.0.0...v5.0.0
+[4.0.0]: https://github.com/contactjavas/wpcs/compare/3.4.0...v4.0.0
 [3.4.1]: https://github.com/WordPress/WordPress-Coding-Standards/compare/3.4.0...3.4.1
 [3.4.0]: https://github.com/WordPress/WordPress-Coding-Standards/compare/3.3.0...3.4.0
 [3.3.0]: https://github.com/WordPress/WordPress-Coding-Standards/compare/3.2.0...3.3.0
