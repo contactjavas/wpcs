@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, main, master]
+  pull_request:
+    branches: [develop, main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: PHP ${{ matrix.php-version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ["8.4", "8.5"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          ini-values: error_reporting=-1, display_errors=On
+          tools: composer:v2
+          coverage: none
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-composer-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php-version }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Lint (parse errors)
+        run: composer lint
+
+      - name: Check code style
+        run: composer check-cs
+
+      - name: Run tests
+        run: composer test
+
+      - name: Check sniff feature completeness
+        run: composer check-complete
+
+      # Each ruleset must load and report nothing on its (clean) check file.
+      - name: Test the rulesets
+        run: |
+          for standard in WordPress-Core WordPress-Docs WordPress-Extra WordPress; do
+            echo "::group::$standard"
+            vendor/bin/phpcs -ps ./Tests/RulesetCheck/class-ruleset-test.inc --standard="$standard"
+            echo "::endgroup::"
+          done
+
+      - name: Test the example ruleset
+        run: |
+          cp phpcs.xml.dist.sample sample.xml
+          vendor/bin/phpcs -ps ./Tests/RulesetCheck/example-ruleset-test.inc --standard=./sample.xml
+
+      # Catches fixer conflicts (two sniffs undoing each other) by running all WPCS fixers over the
+      # test case files. PHPCS 4 phpcbf exit codes are a bitmask: 1 = fixable, 2 = non-fixable remain,
+      # 4 = FAILED TO FIX, 16 = process error.
+      - name: Test for fixer conflicts
+        if: ${{ matrix.php-version == '8.4' }}
+        run: |
+          set +e
+          output="$(vendor/bin/phpcbf -q ./WordPress/Tests/ --standard=WordPress --extensions=inc --exclude=Generic.PHP.Syntax --report=summary --ignore=/WordPress/Tests/WP/GlobalVariablesOverrideUnitTest.7.inc)"
+          code=$?
+          set -e
+          echo "$output"
+          if [ "$code" -ge 4 ] || grep -qF "FAILED TO FIX" <<< "$output"; then
+            echo "::error::phpcbf did not converge (exit code $code)"
+            exit 1
+          fi
