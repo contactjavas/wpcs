@@ -161,7 +161,9 @@ final class CurrentTimeTimestampSniff extends AbstractFunctionParameterSniff {
 				$this->phpcsFile->fixer->replaceToken( $i, '' );
 			}
 
-			$this->phpcsFile->fixer->replaceToken( $stackPtr, 'time(' );
+			// PHPCS 4.x tokenizes `\current_time` as a single token: preserve the leading backslash.
+			$prefix = ( '\\' === $this->tokens[ $stackPtr ]['content'][0] ) ? '\\' : '';
+			$this->phpcsFile->fixer->replaceToken( $stackPtr, $prefix . 'time(' );
 			$this->phpcsFile->fixer->endChangeset();
 		}
 	}

@@ -14,6 +14,27 @@ This project adheres to [Semantic Versioning](https://semver.org/) and [Keep a C
 - Modernized codebase and sniffs for full compatibility with PHP 8.4 and PHPCS 4.0.
 - Upgraded dev dependency `phpunit/phpunit` to `^13.2.4` and modernized test suite for PHPUnit 13 compatibility.
 
+## [3.4.1] - 2026-07-27
+
+**This is a security release and all users are advised to update their WordPressCS install as soon as possible.**
+
+### Changed
+- The minimum required `PHPCSUtils` version to 1.2.3 (was 1.2.2). [#2770]
+- The minimum required `PHPCSExtra` version to 1.5.1 (was 1.5.0). [#2770]
+- Various housekeeping, including documentation improvements.
+
+### Fixed
+- **SECURITY FIX**: Running the `WordPress.WP.EnqueuedResourceParameters` sniff over untrusted PHP code, for example, in a CI pipeline that lints pull requests, or on a developer machine reviewing third-party code, could lead to arbitrary command execution on the scanning host. [#2771]
+    This affects users of the `WordPress` and `WordPress-Extra` rulesets. The `WordPress-Core` ruleset and the `WordPress-Docs` ruleset are not affected.
+    For more details, see the [security advisory][sec-1].
+    Thanks to [@FORIMOC] for responsibly disclosing the vulnerability.
+
+[sec-1]: https://github.com/WordPress/WordPress-Coding-Standards/security/advisories/GHSA-3pwp-g2mj-5p3v
+
+[#2770]: https://github.com/WordPress/WordPress-Coding-Standards/pull/2770
+[#2771]: https://github.com/WordPress/WordPress-Coding-Standards/pull/2771
+
+
 ## [3.4.0] - 2026-07-16
 
 We're happy to welcome [@rodrigoprimo] as co-maintainer of WordPressCS as of this release.
@@ -1803,6 +1824,7 @@ Initial tagged release.
 [PHPCompatibility]:      https://github.com/PHPCompatibility/PHPCompatibility
 
 [Unreleased]: https://github.com/WordPress/WordPress-Coding-Standards/compare/main...HEAD
+[3.4.1]: https://github.com/WordPress/WordPress-Coding-Standards/compare/3.4.0...3.4.1
 [3.4.0]: https://github.com/WordPress/WordPress-Coding-Standards/compare/3.3.0...3.4.0
 [3.3.0]: https://github.com/WordPress/WordPress-Coding-Standards/compare/3.2.0...3.3.0
 [3.2.0]: https://github.com/WordPress/WordPress-Coding-Standards/compare/3.1.0...3.2.0
@@ -1848,6 +1870,7 @@ Initial tagged release.
 [@dd32]:            https://github.com/dd32
 [@desrosj]:         https://github.com/desrosj
 [@dingo-d]:         https://github.com/dingo-d
+[@FORIMOC]:         https://github.com/FORIMOC
 [@fredden]:         https://github.com/fredden
 [@GaryJones]:       https://github.com/GaryJones
 [@gogdzl]:          https://github.com/gogdzl

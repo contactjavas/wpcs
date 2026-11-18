@@ -14,6 +14,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Permissions should be configured at the job level.
+permissions: {}
+
 env:
   PHPCS_DEV: '3.x-dev'
   UTILS_DEV: 'dev-develop'
@@ -23,12 +26,14 @@ jobs:
   # Runs the test suite against all supported branches and combinations.
   # Linting is performed on all jobs run with dependencies `stable`.
   test:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read # To clone the repo.
+
     strategy:
       matrix:
-        php: [ '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.6' ]
-        dependencies: [ 'lowest', 'stable' ]
-        extensions: [ '' ]
+        php: ['7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.7']
+        dependencies: ['lowest', 'stable']
+        extensions: ['']
         coverage: [false]
 
         include:
@@ -41,11 +46,11 @@ jobs:
             dependencies: 'lowest'
             extensions: ''
             coverage: true
-          - php: '8.5'
+          - php: '8.6'
             dependencies: 'stable'
             extensions: ''
             coverage: true
-          - php: '8.5'
+          - php: '8.6'
             dependencies: 'lowest'
             extensions: ''
             coverage: true
@@ -55,22 +60,23 @@ jobs:
             dependencies: 'dev'
             extensions: ''
             coverage: false
-          - php: '8.1'
+          - php: '8.2'
             dependencies: 'dev'
             extensions: ''
             coverage: false
-          - php: '8.5'
+          - php: '8.6'
             dependencies: 'dev'
             extensions: ''
             coverage: false
 
-          # Add extra build to test against PHPCS 4.
-          #- php: '7.4'
-          #  dependencies: '4.0.x-dev as 3.99.99'
+            # Add extra build to test against PHPCS 4.
+            # - php: '7.4'
+            # dependencies: '4.0.x-dev as 3.99.99'
+
+    continue-on-error: ${{ matrix.php == '8.7' }}
 
     name: PHP ${{ matrix.php }} on PHPCS ${{ matrix.dependencies }}
-
-    continue-on-error: ${{ matrix.php == '8.6' }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -90,12 +96,14 @@ jobs:
           fi
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ matrix.php }}
           ini-values: ${{ steps.set_ini.outputs.PHP_INI }}
           coverage: ${{ matrix.coverage && 'xdebug' || 'none' }}
           tools: cs2pr
+        env:
+          fail-fast: true
 
       - name: "Composer: set PHPCS dependencies for tests (dev)"
         if: ${{ matrix.dependencies == 'dev' }}
@@ -137,7 +145,7 @@ jobs:
 
       - name: Send coverage report to Codecov
         if: ${{ success() && matrix.coverage == true && github.event.repository.fork == false }}
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./build/logs/clover.xml
           fail_ci_if_error: true
