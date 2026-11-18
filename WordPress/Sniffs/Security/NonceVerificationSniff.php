@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\Security;
 
 use PHPCSUtils\Tokens\Collections;
@@ -48,7 +50,7 @@ class NonceVerificationSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	protected $superglobals = array(
+	protected array $superglobals = array(
 		'$_POST'    => true,
 		'$_FILES'   => true,
 		'$_GET'     => false,
@@ -74,7 +76,7 @@ class NonceVerificationSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	private $nonceVerificationFunctions = array(
+	private array $nonceVerificationFunctions = array(
 		'wp_verify_nonce'     => true,
 		'check_admin_referer' => true,
 		'check_ajax_referer'  => true,
@@ -92,9 +94,9 @@ class NonceVerificationSniff extends Sniff {
 	 *               - Visibility changed from `protected` to `private.
 	 *               - Format changed from a multi-dimensional array to a single-dimensional array.
 	 *
-	 * @var array
+	 * @var mixed Raw ruleset value (PHPCS may assign string|bool|null|array).
 	 */
-	private $addedCustomNonceFunctions = array();
+	private mixed $addedCustomNonceFunctions = array();
 
 	/**
 	 * Information on the all scopes that were checked to find a nonce verification in a particular file.
@@ -117,14 +119,14 @@ class NonceVerificationSniff extends Sniff {
 	 *
 	 * @var array<string, mixed>
 	 */
-	private $cached_results;
+	private ?array $cached_results = null;
 
 	/**
 	 * Returns an array of tokens this test wants to listen for.
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		$targets  = array( \T_VARIABLE => \T_VARIABLE );
 		$targets += Collections::listOpenTokensBC(); // We need to skip over lists.
 
@@ -136,10 +138,10 @@ class NonceVerificationSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 		// Skip over lists as whatever is in those will always be assignments.
 		if ( isset( Collections::listOpenTokensBC()[ $this->tokens[ $stackPtr ]['code'] ] ) ) {
 			$open_close = Lists::getOpenClose( $this->phpcsFile, $stackPtr );
@@ -152,12 +154,12 @@ class NonceVerificationSniff extends Sniff {
 		}
 
 		if ( ! isset( $this->superglobals[ $this->tokens[ $stackPtr ]['content'] ] ) ) {
-			return;
+			return null;
 		}
 
 		if ( Scopes::isOOProperty( $this->phpcsFile, $stackPtr ) ) {
 			// Property with the same name as a superglobal. Not our target.
-			return;
+			return null;
 		}
 
 		// Determine the cache keys for this item.
@@ -178,11 +180,11 @@ class NonceVerificationSniff extends Sniff {
 
 		$needs_nonce = $this->needs_nonce_check( $stackPtr, $cache_keys );
 		if ( false === $needs_nonce ) {
-			return;
+			return null;
 		}
 
 		if ( $this->has_nonce_check( $stackPtr, $cache_keys, ( 'after' === $needs_nonce ) ) ) {
-			return;
+			return null;
 		}
 
 		// If we're still here, no nonce-verification function was found.
@@ -198,6 +200,8 @@ class NonceVerificationSniff extends Sniff {
 			$this->superglobals[ $this->tokens[ $stackPtr ]['content'] ],
 			$error_code
 		);
+
+		return null;
 	}
 
 	/**
@@ -211,7 +215,7 @@ class NonceVerificationSniff extends Sniff {
 	 * @return string|false String "before" or "after" if a nonce check is needed.
 	 *                      FALSE when no nonce check is needed.
 	 */
-	protected function needs_nonce_check( $stackPtr, array $cache_keys ) {
+	protected function needs_nonce_check( int $stackPtr, array $cache_keys ): string|false {
 		$in_nonce_check = ContextHelper::is_in_function_call( $this->phpcsFile, $stackPtr, $this->nonceVerificationFunctions );
 		if ( false !== $in_nonce_check ) {
 			// This *is* the nonce check, so bow out, but do store to cache.
@@ -261,7 +265,7 @@ class NonceVerificationSniff extends Sniff {
 	 *
 	 * @return bool
 	 */
-	private function has_nonce_check( $stackPtr, array $cache_keys, $allow_nonce_after = false ) {
+	private function has_nonce_check( int $stackPtr, array $cache_keys, bool $allow_nonce_after = false ): bool {
 		$start = $cache_keys['start'];
 		$end   = $cache_keys['end'];
 
@@ -345,7 +349,7 @@ class NonceVerificationSniff extends Sniff {
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function get_cache( $filename, $start ) {
+	private function get_cache( string $filename, int $start ): array {
 		if ( is_array( $this->cached_results )
 			&& $filename === $this->cached_results['file']
 			&& isset( $this->cached_results['cache'][ $start ] )
@@ -371,7 +375,7 @@ class NonceVerificationSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	private function set_cache( $filename, $start, $end, $nonce ) {
+	private function set_cache( string $filename, int $start, int $end, int|bool $nonce ): void {
 		if ( is_array( $this->cached_results ) === false
 			|| $filename !== $this->cached_results['file']
 		) {
@@ -411,7 +415,7 @@ class NonceVerificationSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function mergeFunctionLists() {
+	protected function mergeFunctionLists(): void {
 		if ( $this->customNonceVerificationFunctions !== $this->addedCustomNonceFunctions ) {
 			$this->nonceVerificationFunctions = RulesetPropertyHelper::merge_custom_array(
 				$this->customNonceVerificationFunctions,

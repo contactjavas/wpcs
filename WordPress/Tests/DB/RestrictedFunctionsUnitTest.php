@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\DB;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
@@ -61,7 +63,7 @@ final class RestrictedFunctionsUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected errors.
 	 */
-	public function getErrorList() {
+	public function getErrorList(): array {
 		return array(
 			25  => 1,
 			26  => 1,
@@ -121,7 +123,7 @@ final class RestrictedFunctionsUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected warnings.
 	 */
-	public function getWarningList() {
+	public function getWarningList(): array {
 		return array();
 	}
 }

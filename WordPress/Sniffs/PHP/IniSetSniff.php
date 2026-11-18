@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\PHP;
 
 use PHPCSUtils\Utils\MessageHelper;
@@ -32,7 +34,7 @@ final class IniSetSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<string, true> Key is function name, value irrelevant.
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'ini_set'   => true,
 		'ini_alter' => true, // Alias function name.
 	);
@@ -51,7 +53,7 @@ final class IniSetSniff extends AbstractFunctionParameterSniff {
 	 *         )
 	 *     );
 	 */
-	protected $safe_options = array(
+	protected array $safe_options = array(
 		'auto_detect_line_endings' => array(),
 		'highlight.bg'             => array(),
 		'highlight.comment'        => array(),
@@ -79,7 +81,7 @@ final class IniSetSniff extends AbstractFunctionParameterSniff {
 	 *         )
 	 *     );
 	 */
-	protected $disallowed_options = array(
+	protected array $disallowed_options = array(
 		'bcmath.scale' => array(
 			'message' => 'Use `bcscale()` instead.',
 		),
@@ -136,15 +138,15 @@ final class IniSetSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		$option_param = PassedParameters::getParameterFromStack( $parameters, 1, 'option' );
 		$value_param  = PassedParameters::getParameterFromStack( $parameters, 2, 'value' );
 
 		if ( false === $option_param || false === $value_param ) {
 			// Missing required param. Not the concern of this sniff. Bow out.
-			return;
+			return null;
 		}
 
 		$option_name  = TextStrings::stripQuotes( $option_param['clean'] );
@@ -152,7 +154,7 @@ final class IniSetSniff extends AbstractFunctionParameterSniff {
 		if ( isset( $this->safe_options[ $option_name ] ) ) {
 			$safe_option = $this->safe_options[ $option_name ];
 			if ( empty( $safe_option['valid_values'] ) || in_array( strtolower( $option_value ), $safe_option['valid_values'], true ) ) {
-				return;
+				return null;
 			}
 		}
 
@@ -172,7 +174,7 @@ final class IniSetSniff extends AbstractFunctionParameterSniff {
 						$disallowed_option['message'],
 					)
 				);
-				return;
+				return null;
 			}
 		}
 
@@ -186,5 +188,7 @@ final class IniSetSniff extends AbstractFunctionParameterSniff {
 				$value_param['clean'],
 			)
 		);
+
+		return null;
 	}
 }

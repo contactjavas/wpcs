@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\DateTime;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -37,7 +39,7 @@ final class CurrentTimeTimestampSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	protected $group_name = 'current_time';
+	protected string $group_name = 'current_time';
 
 	/**
 	 * List of functions to examine.
@@ -46,7 +48,7 @@ final class CurrentTimeTimestampSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<string, true> Key is function name, value irrelevant.
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'current_time' => true,
 	);
 
@@ -61,9 +63,9 @@ final class CurrentTimeTimestampSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		/*
 		 * We already know there will be valid open & close parentheses as otherwise the parameter
 		 * retrieval function call would have returned an empty array, so no additional checks needed.
@@ -77,7 +79,7 @@ final class CurrentTimeTimestampSniff extends AbstractFunctionParameterSniff {
 		$type_param = PassedParameters::getParameterFromStack( $parameters, 1, 'type' );
 		if ( false === $type_param ) {
 			// Type parameter not found. Bow out.
-			return;
+			return null;
 		}
 
 		$content_type = '';
@@ -90,7 +92,7 @@ final class CurrentTimeTimestampSniff extends AbstractFunctionParameterSniff {
 				$content_type = trim( TextStrings::stripQuotes( $this->tokens[ $i ]['content'] ) );
 				if ( 'U' !== $content_type && 'timestamp' !== $content_type ) {
 					// Most likely valid use of current_time().
-					return;
+					return null;
 				}
 
 				continue;
@@ -104,7 +106,7 @@ final class CurrentTimeTimestampSniff extends AbstractFunctionParameterSniff {
 			 * If we're still here, we've encountered an unexpected token, like a variable or
 			 * function call. Bow out as we can't determine the runtime value.
 			 */
-			return;
+			return null;
 		}
 
 		$gmt_true = false;
@@ -131,7 +133,7 @@ final class CurrentTimeTimestampSniff extends AbstractFunctionParameterSniff {
 				'Requested'
 			);
 
-			return;
+			return null;
 		}
 
 		/*
@@ -150,7 +152,7 @@ final class CurrentTimeTimestampSniff extends AbstractFunctionParameterSniff {
 		if ( false !== $has_comment ) {
 			// If there are comments, we don't auto-fix as it would remove those comments.
 			$this->phpcsFile->addError( $error, $stackPtr, $error_code, array( $code_snippet ) );
-			return;
+			return null;
 		}
 
 		$fix = $this->phpcsFile->addFixableError( $error, $stackPtr, $error_code, array( $code_snippet ) );
@@ -166,5 +168,7 @@ final class CurrentTimeTimestampSniff extends AbstractFunctionParameterSniff {
 			$this->phpcsFile->fixer->replaceToken( $stackPtr, $prefix . 'time(' );
 			$this->phpcsFile->fixer->endChangeset();
 		}
+
+		return null;
 	}
 }

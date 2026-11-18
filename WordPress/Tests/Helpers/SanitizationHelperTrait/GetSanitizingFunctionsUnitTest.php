@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\SanitizationHelperTrait;
 
 use PHPUnit\Framework\TestCase;
@@ -26,7 +28,7 @@ final class GetSanitizingFunctionsUnitTest extends TestCase {
 	 *
 	 * @var object
 	 */
-	private $testClass;
+	private ?object $testClass = null;
 
 	/**
 	 * Set up the test class.
@@ -45,7 +47,7 @@ final class GetSanitizingFunctionsUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetSanitizingFunctionsContainsKnownFunction() {
+	public function testGetSanitizingFunctionsContainsKnownFunction(): void {
 		$result = $this->testClass->get_sanitizing_functions();
 
 		$this->assertIsArray( $result );
@@ -58,7 +60,7 @@ final class GetSanitizingFunctionsUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetSanitizingFunctionsIncludesCustomFunctions() {
+	public function testGetSanitizingFunctionsIncludesCustomFunctions(): void {
 		$defaultCount                               = count( $this->testClass->get_sanitizing_functions() );
 		$this->testClass->customSanitizingFunctions = array( 'my_custom_sanitizer' );
 
@@ -75,7 +77,7 @@ final class GetSanitizingFunctionsUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetSanitizingFunctionsUpdatesWhenCustomFunctionsChange() {
+	public function testGetSanitizingFunctionsUpdatesWhenCustomFunctionsChange(): void {
 		$this->testClass->customSanitizingFunctions = array( 'first_custom' );
 		$result                                     = $this->testClass->get_sanitizing_functions();
 		$this->assertArrayHasKey( 'first_custom', $result );
@@ -93,7 +95,7 @@ final class GetSanitizingFunctionsUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testtGetSanitizingFunctionDoesNotRecognizeSanitizingAndUnslashingFunctions() {
+	public function testtGetSanitizingFunctionDoesNotRecognizeSanitizingAndUnslashingFunctions(): void {
 		$this->testClass->customSanitizingFunctions           = array( 'custom_sanitize' );
 		$this->testClass->customUnslashingSanitizingFunctions = array( 'custom_unslash_and_sanitize' );
 

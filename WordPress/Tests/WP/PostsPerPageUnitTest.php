@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\WP;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
@@ -30,7 +32,7 @@ final class PostsPerPageUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected errors.
 	 */
-	public function getErrorList() {
+	public function getErrorList(): array {
 		return array();
 	}
 
@@ -39,7 +41,7 @@ final class PostsPerPageUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected warnings.
 	 */
-	public function getWarningList() {
+	public function getWarningList(): array {
 		return array(
 			4   => 1,
 			10  => 1,

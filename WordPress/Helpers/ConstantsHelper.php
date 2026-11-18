@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHP_CodeSniffer\Files\File;
@@ -46,7 +48,7 @@ final class ConstantsHelper {
 	 *
 	 * @return bool
 	 */
-	public static function is_use_of_global_constant( File $phpcsFile, $stackPtr ) {
+	public static function is_use_of_global_constant( File $phpcsFile, int $stackPtr ): bool {
 		$tokens = $phpcsFile->getTokens();
 
 		// Check for the existence of the token.

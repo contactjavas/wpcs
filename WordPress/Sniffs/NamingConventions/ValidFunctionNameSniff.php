@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\NamingConventions;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -40,7 +42,7 @@ final class ValidFunctionNameSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		return array( \T_FUNCTION );
 	}
 
@@ -51,10 +53,10 @@ final class ValidFunctionNameSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		if ( DeprecationHelper::is_function_deprecated( $this->phpcsFile, $stackPtr ) === true ) {
 			/*
@@ -62,18 +64,18 @@ final class ValidFunctionNameSniff extends Sniff {
 			 * otherwise functions deprecated in favor of a function with a compliant
 			 * name would still trigger an error.
 			 */
-			return;
+			return null;
 		}
 
 		$name = FunctionDeclarations::getName( $this->phpcsFile, $stackPtr );
 		if ( empty( $name ) === true ) {
 			// Live coding or parse error.
-			return;
+			return null;
 		}
 
 		if ( '' === ltrim( $name, '_' ) ) {
 			// Ignore special functions, like __().
-			return;
+			return null;
 		}
 
 		$ooPtr = Scopes::validDirectScope( $this->phpcsFile, $stackPtr, Tokens::$ooScopeTokens );
@@ -82,6 +84,8 @@ final class ValidFunctionNameSniff extends Sniff {
 		} else {
 			$this->process_method_declaration( $stackPtr, $name, $ooPtr );
 		}
+
+		return null;
 	}
 
 	/**
@@ -97,7 +101,7 @@ final class ValidFunctionNameSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function process_function_declaration( $stackPtr, $functionName ) {
+	protected function process_function_declaration( int $stackPtr, string $functionName ): void {
 		// PHP magic functions are exempt from our rules.
 		if ( FunctionDeclarations::isMagicFunctionName( $functionName ) === true ) {
 			return;
@@ -135,7 +139,7 @@ final class ValidFunctionNameSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function process_method_declaration( $stackPtr, $methodName, $currScope ) {
+	protected function process_method_declaration( int $stackPtr, string $methodName, int $currScope ): void {
 
 		if ( \T_ANON_CLASS === $this->tokens[ $currScope ]['code'] ) {
 			$className = '[Anonymous Class]';

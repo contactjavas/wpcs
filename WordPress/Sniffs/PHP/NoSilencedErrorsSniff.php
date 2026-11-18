@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\PHP;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -84,7 +86,7 @@ final class NoSilencedErrorsSniff extends Sniff {
 	 *
 	 * @var array<string, true> Key is function name, value irrelevant.
 	 */
-	protected $allowedFunctionsList = array(
+	protected array $allowedFunctionsList = array(
 		// Directory extension.
 		'chdir'                        => true,
 		'opendir'                      => true,
@@ -156,7 +158,7 @@ final class NoSilencedErrorsSniff extends Sniff {
 	 *
 	 * @var array<int|string, int|string>
 	 */
-	private $empty_tokens = array();
+	private array $empty_tokens = array();
 
 	/**
 	 * Returns an array of tokens this test wants to listen for.
@@ -165,7 +167,7 @@ final class NoSilencedErrorsSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		$this->empty_tokens                    = Tokens::$emptyTokens;
 		$this->empty_tokens[ \T_NS_SEPARATOR ] = \T_NS_SEPARATOR;
 		$this->empty_tokens[ \T_BITWISE_AND ]  = \T_BITWISE_AND;
@@ -181,11 +183,15 @@ final class NoSilencedErrorsSniff extends Sniff {
 	 * @since 1.1.0
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
+	 *
+	 * @return int|null Integer stack pointer to skip forward or null to continue
+	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 		// Handle the user-defined custom function list.
 		$this->customAllowedFunctionsList = RulesetPropertyHelper::merge_custom_array( $this->customAllowedFunctionsList, array(), false );
-		$this->customAllowedFunctionsList = array_map( 'strtolower', $this->customAllowedFunctionsList );
+		// Ruleset array items may be null/bool (PHPCS converts '' and 'true'/'false'); only names are useful.
+		$this->customAllowedFunctionsList = array_map( 'strtolower', array_filter( $this->customAllowedFunctionsList, 'is_string' ) );
 
 		/*
 		 * Check if the error silencing is done for one of the allowed functions.
@@ -204,7 +210,7 @@ final class NoSilencedErrorsSniff extends Sniff {
 					&& in_array( $function_name, $this->customAllowedFunctionsList, true ) === true )
 				) {
 					$this->phpcsFile->recordMetric( $stackPtr, 'Error silencing', 'silencing allowed function call: ' . $function_name );
-					return;
+					return null;
 				}
 			}
 		}
@@ -241,5 +247,7 @@ final class NoSilencedErrorsSniff extends Sniff {
 		} else {
 			$this->phpcsFile->recordMetric( $stackPtr, 'Error silencing', $found );
 		}
+
+		return null;
 	}
 }

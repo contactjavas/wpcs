@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\Security;
 
 use PHP_CodeSniffer\Files\File;
@@ -54,7 +56,7 @@ class ValidatedSanitizedInputSniff extends Sniff {
 	 *
 	 * @var array<string, true>
 	 */
-	private $slashed_superglobals = array(
+	private array $slashed_superglobals = array(
 		'$_COOKIE'  => true,
 		'$_GET'     => true,
 		'$_POST'    => true,
@@ -67,7 +69,7 @@ class ValidatedSanitizedInputSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		return array(
 			\T_VARIABLE,
 			\T_DOUBLE_QUOTED_STRING,
@@ -80,9 +82,9 @@ class ValidatedSanitizedInputSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		// Handling string interpolation.
 		if ( \T_DOUBLE_QUOTED_STRING === $this->tokens[ $stackPtr ]['code']
@@ -108,7 +110,7 @@ class ValidatedSanitizedInputSniff extends Sniff {
 				$this->phpcsFile->addError( 'Detected usage of a non-sanitized, non-validated input variable %s: %s', $stackPtr, 'InputNotValidatedNotSanitized', array( $bad_variable, $this->tokens[ $stackPtr ]['content'] ) );
 			}
 
-			return;
+			return null;
 		}
 
 		/* Handle variables */
@@ -117,28 +119,28 @@ class ValidatedSanitizedInputSniff extends Sniff {
 		if ( '$GLOBALS' === $this->tokens[ $stackPtr ]['content']
 			|| Variables::isSuperglobalName( $this->tokens[ $stackPtr ]['content'] ) === false
 		) {
-			return;
+			return null;
 		}
 
 		// If the variable is being unset, we don't care about it.
 		if ( Context::inUnset( $this->phpcsFile, $stackPtr ) ) {
-			return;
+			return null;
 		}
 
 		// If we're overriding a superglobal with an assignment, no need to test.
 		if ( VariableHelper::is_assignment( $this->phpcsFile, $stackPtr ) ) {
-			return;
+			return null;
 		}
 
 		// This superglobal is being validated.
 		if ( ContextHelper::is_in_isset_or_empty( $this->phpcsFile, $stackPtr ) ) {
-			return;
+			return null;
 		}
 
 		$array_keys = VariableHelper::get_array_access_keys( $this->phpcsFile, $stackPtr );
 
 		if ( empty( $array_keys ) ) {
-			return;
+			return null;
 		}
 
 		$error_data = array( $this->tokens[ $stackPtr ]['content'] . '[' . implode( '][', $array_keys ) . ']' );
@@ -170,7 +172,7 @@ class ValidatedSanitizedInputSniff extends Sniff {
 		}
 
 		if ( false === $validated ) {
-			$validated = ValidationHelper::is_validated( $this->phpcsFile, $stackPtr, $array_keys, $this->check_validation_in_scope_only );
+			$validated = ValidationHelper::is_validated( $this->phpcsFile, $stackPtr, $array_keys, (bool) $this->check_validation_in_scope_only );
 		}
 
 		if ( false === $validated ) {
@@ -184,17 +186,17 @@ class ValidatedSanitizedInputSniff extends Sniff {
 
 		// If this variable is being tested with one of the `is_..()` functions, sanitization isn't needed.
 		if ( ContextHelper::is_in_type_test( $this->phpcsFile, $stackPtr ) ) {
-			return;
+			return null;
 		}
 
 		// If this is a comparison ('a' == $_POST['foo']), sanitization isn't needed.
 		if ( VariableHelper::is_comparison( $this->phpcsFile, $stackPtr, false ) ) {
-			return;
+			return null;
 		}
 
 		// If this is a comparison using the array comparison functions, sanitization isn't needed.
 		if ( ContextHelper::is_in_array_comparison( $this->phpcsFile, $stackPtr ) ) {
-			return;
+			return null;
 		}
 
 		// Now look for sanitizing functions.
@@ -206,6 +208,8 @@ class ValidatedSanitizedInputSniff extends Sniff {
 				$error_data
 			);
 		}
+
+		return null;
 	}
 
 	/**
@@ -221,7 +225,7 @@ class ValidatedSanitizedInputSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	public function add_unslash_error( File $phpcsFile, $stackPtr ) {
+	public function add_unslash_error( File $phpcsFile, int $stackPtr ): void {
 		$tokens   = $phpcsFile->getTokens();
 		$var_name = $tokens[ $stackPtr ]['content'];
 

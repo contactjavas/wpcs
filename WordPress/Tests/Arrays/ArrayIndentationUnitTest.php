@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Arrays;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
@@ -26,7 +28,7 @@ final class ArrayIndentationUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @var int
 	 */
-	private $tab_width = 4;
+	private int $tab_width = 4;
 
 	/**
 	 * Set CLI values before the file is tested.
@@ -36,7 +38,7 @@ final class ArrayIndentationUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return void
 	 */
-	public function setCliValues( $testFile, $config ) {
+	public function setCliValues( string $testFile, \PHP_CodeSniffer\Config $config ): void {
 		// Tab width setting is only needed for the tabbed file.
 		if ( 'ArrayIndentationUnitTest.1.inc' === $testFile ) {
 			$config->tabWidth = $this->tab_width;
@@ -50,7 +52,7 @@ final class ArrayIndentationUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected errors.
 	 */
-	public function getErrorList() {
+	public function getErrorList(): array {
 		return array(
 			23  => 1,
 			24  => 1,
@@ -156,7 +158,7 @@ final class ArrayIndentationUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected warnings.
 	 */
-	public function getWarningList() {
+	public function getWarningList(): array {
 		return array();
 	}
 }

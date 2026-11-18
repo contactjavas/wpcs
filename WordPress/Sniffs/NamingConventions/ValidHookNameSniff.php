@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\NamingConventions;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -63,7 +65,7 @@ class ValidHookNameSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	protected $punctuation_regex = '`[^\w%s]`';
+	protected string $punctuation_regex = '`[^\w%s]`';
 
 	/**
 	 * Groups of functions to restrict.
@@ -72,7 +74,7 @@ class ValidHookNameSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return array<string, array<string, array<string>>>
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		// Only retrieve functions which are not used for deprecated hooks.
 		$this->target_functions = WPHookHelper::get_functions( false );
 
@@ -90,13 +92,13 @@ class ValidHookNameSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 
 		$hook_name_param = WPHookHelper::get_hook_name_param( $matched_content, $parameters );
 		if ( false === $hook_name_param ) {
-			return;
+			return null;
 		}
 
 		$regex = $this->prepare_regex();
@@ -209,6 +211,8 @@ class ValidHookNameSniff extends AbstractFunctionParameterSniff {
 			$error = 'Words in hook names should be separated using underscores. Expected: %s, but found: %s.';
 			$this->phpcsFile->addWarning( $error, $first_non_empty, 'UseUnderscores', $data );
 		}
+
+		return null;
 	}
 
 	/**
@@ -220,7 +224,7 @@ class ValidHookNameSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return string
 	 */
-	protected function prepare_regex() {
+	protected function prepare_regex(): string {
 		$extra = '';
 		if ( '' !== $this->additionalWordDelimiters && \is_string( $this->additionalWordDelimiters ) ) {
 			$extra = preg_quote( $this->additionalWordDelimiters, '`' );
@@ -238,7 +242,7 @@ class ValidHookNameSniff extends AbstractFunctionParameterSniff {
 	 *                               Valid values are: 'full', 'case', 'punctuation'.
 	 * @return string
 	 */
-	protected function transform( $text_string, $regex, $transform_type = 'full' ) {
+	protected function transform( string $text_string, string $regex, string $transform_type = 'full' ): string {
 
 		switch ( $transform_type ) {
 			case 'case':
@@ -262,7 +266,7 @@ class ValidHookNameSniff extends AbstractFunctionParameterSniff {
 	 *                               Valid values are: 'full', 'case', 'punctuation'.
 	 * @return string
 	 */
-	protected function transform_complex_string( $text_string, $regex, $transform_type = 'full' ) {
+	protected function transform_complex_string( string $text_string, string $regex, string $transform_type = 'full' ): string {
 		$plain_text = TextStrings::stripEmbeds( $text_string );
 		$embeds     = TextStrings::getEmbeds( $text_string );
 

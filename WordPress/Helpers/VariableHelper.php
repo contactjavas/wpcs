@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHP_CodeSniffer\Files\File;
@@ -50,7 +52,7 @@ final class VariableHelper {
 	 * @return array An array of index keys whose value is being accessed.
 	 *               or an empty array if this is not array access.
 	 */
-	public static function get_array_access_keys( File $phpcsFile, $stackPtr, $all = true ) {
+	public static function get_array_access_keys( File $phpcsFile, int $stackPtr, bool $all = true ): array {
 		$tokens = $phpcsFile->getTokens();
 		$keys   = array();
 
@@ -109,7 +111,7 @@ final class VariableHelper {
 	 *
 	 * @return string|false The array index key whose value is being accessed.
 	 */
-	public static function get_array_access_key( File $phpcsFile, $stackPtr ) {
+	public static function get_array_access_key( File $phpcsFile, int $stackPtr ): string|false {
 		$keys = self::get_array_access_keys( $phpcsFile, $stackPtr, false );
 		if ( isset( $keys[0] ) ) {
 			return $keys[0];
@@ -142,7 +144,7 @@ final class VariableHelper {
 	 *
 	 * @return bool Whether this is a comparison.
 	 */
-	public static function is_comparison( File $phpcsFile, $stackPtr, $include_coalesce = true ) {
+	public static function is_comparison( File $phpcsFile, int $stackPtr, bool $include_coalesce = true ): bool {
 		$tokens = $phpcsFile->getTokens();
 		if ( isset( $tokens[ $stackPtr ] ) === false ) {
 			return false;
@@ -217,7 +219,7 @@ final class VariableHelper {
 	 *
 	 * @return bool Whether the token is a variable being assigned a value.
 	 */
-	public static function is_assignment( File $phpcsFile, $stackPtr, $include_coalesce = true ) {
+	public static function is_assignment( File $phpcsFile, int $stackPtr, bool $include_coalesce = true ): bool {
 		$tokens = $phpcsFile->getTokens();
 		if ( isset( $tokens[ $stackPtr ] ) === false ) {
 			return false;

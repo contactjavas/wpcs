@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\PHP;
 
 use PHP_CodeSniffer\Sniffs\DeprecatedSniff;
@@ -33,7 +35,7 @@ final class POSIXFunctionsSniff extends AbstractFunctionRestrictionsSniff implem
 	 *
 	 * @return string
 	 */
-	public function getDeprecationVersion() {
+	public function getDeprecationVersion(): string {
 		return 'WordPressCS v3.3.0';
 	}
 
@@ -42,7 +44,7 @@ final class POSIXFunctionsSniff extends AbstractFunctionRestrictionsSniff implem
 	 *
 	 * @return string
 	 */
-	public function getRemovalVersion() {
+	public function getRemovalVersion(): string {
 		return 'WordPressCS v4.0.0';
 	}
 
@@ -51,7 +53,7 @@ final class POSIXFunctionsSniff extends AbstractFunctionRestrictionsSniff implem
 	 *
 	 * @return string
 	 */
-	public function getDeprecationMessage() {
+	public function getDeprecationMessage(): string {
 		return 'To scan for PHP cross-version compatibility issues, use the PHPCompatibility standard instead.';
 	}
 
@@ -68,7 +70,7 @@ final class POSIXFunctionsSniff extends AbstractFunctionRestrictionsSniff implem
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		return array(
 			'ereg' => array(
 				'type'      => 'error',

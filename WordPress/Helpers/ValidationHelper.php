@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHP_CodeSniffer\Files\File;
@@ -34,7 +36,7 @@ final class ValidationHelper {
 	 *
 	 * @var array<int|string, string>
 	 */
-	private static $targets = array(
+	private static array $targets = array(
 		\T_ISSET                => 'construct',
 		\T_EMPTY                => 'construct',
 		\T_STRING               => 'function_call',
@@ -52,7 +54,7 @@ final class ValidationHelper {
 	 *
 	 * @var array<string, bool>
 	 */
-	private static $key_exists_functions = array(
+	private static array $key_exists_functions = array(
 		'array_key_exists' => true,
 		'key_exists'       => true, // Alias.
 	);
@@ -100,7 +102,7 @@ final class ValidationHelper {
 	 *
 	 * @return bool Whether the var is validated.
 	 */
-	public static function is_validated( File $phpcsFile, $stackPtr, $array_keys = array(), $in_condition_only = false ) {
+	public static function is_validated( File $phpcsFile, int $stackPtr, array|string $array_keys = array(), bool $in_condition_only = false ): bool {
 		$tokens = $phpcsFile->getTokens();
 		if ( isset( $tokens[ $stackPtr ] ) === false ) {
 			return false;
@@ -346,7 +348,7 @@ final class ValidationHelper {
 	 *
 	 * @return string[]
 	 */
-	private static function strip_quotes_from_array_values( array $text_strings ) {
+	private static function strip_quotes_from_array_values( array $text_strings ): array {
 		return array_map( array( 'PHPCSUtils\Utils\TextStrings', 'stripQuotes' ), $text_strings );
 	}
 }

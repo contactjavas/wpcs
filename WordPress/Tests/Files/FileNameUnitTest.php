@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Files;
 
 use PHP_CodeSniffer\Config;
@@ -32,7 +34,7 @@ final class FileNameUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @var array
 	 */
-	private $expected_results = array(
+	private array $expected_results = array(
 
 		/*
 		 * In /FileNameUnitTests.
@@ -132,7 +134,7 @@ final class FileNameUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return string[]
 	 */
-	protected function getTestFiles( $testFileBase ) {
+	protected function getTestFiles( string $testFileBase ): array {
 
 		$sep        = \DIRECTORY_SEPARATOR;
 		$test_files = glob( dirname( $testFileBase ) . $sep . 'FileNameUnitTests{' . $sep . ',' . $sep . '*' . $sep . '}*.inc', \GLOB_BRACE );
@@ -158,7 +160,7 @@ final class FileNameUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected errors.
 	 */
-	public function getErrorList( $testFile = '' ) {
+	public function getErrorList( string $testFile = '' ): array {
 
 		if ( isset( $this->expected_results[ $testFile ] ) ) {
 			return array(
@@ -174,7 +176,7 @@ final class FileNameUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected warnings.
 	 */
-	public function getWarningList() {
+	public function getWarningList(): array {
 		return array();
 	}
 
@@ -183,7 +185,7 @@ final class FileNameUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return void
 	 */
-	public function testStdIn() {
+	public function testStdIn(): void {
 		$config         = new ConfigDouble();
 		$rootDir        = dirname( dirname( dirname( __DIR__ ) ) );
 		$installedPaths = implode(

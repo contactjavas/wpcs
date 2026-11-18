@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -51,7 +53,7 @@ final class CronIntervalSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	protected $wp_time_constants = array(
+	protected array $wp_time_constants = array(
 		'MINUTE_IN_SECONDS' => 60,
 		'HOUR_IN_SECONDS'   => 3600,
 		'DAY_IN_SECONDS'    => 86400,
@@ -65,7 +67,7 @@ final class CronIntervalSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	protected $valid_functions = array(
+	protected array $valid_functions = array(
 		'add_filter' => true,
 	);
 
@@ -74,7 +76,7 @@ final class CronIntervalSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		return Tokens::$stringTokens;
 	}
 
@@ -83,29 +85,29 @@ final class CronIntervalSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 		$token = $this->tokens[ $stackPtr ];
 
 		if ( 'cron_schedules' !== TextStrings::stripQuotes( $token['content'] ) ) {
-			return;
+			return null;
 		}
 
 		// Check if the text was found within a function call to add_filter().
 		$functionPtr = ContextHelper::is_in_function_call( $this->phpcsFile, $stackPtr, $this->valid_functions );
 		if ( false === $functionPtr ) {
-			return;
+			return null;
 		}
 
 		$callback = PassedParameters::getParameter( $this->phpcsFile, $functionPtr, 2, 'callback' );
 		if ( false === $callback ) {
-			return;
+			return null;
 		}
 
 		if ( $stackPtr >= $callback['start'] && $stackPtr <= $callback['end'] ) {
 			// "cron_schedules" found in the second parameter, not the first.
-			return;
+			return null;
 		}
 
 		// Detect callback function name.
@@ -122,7 +124,7 @@ final class CronIntervalSniff extends Sniff {
 
 			if ( false === $callback ) {
 				$this->confused( $stackPtr );
-				return;
+				return null;
 			}
 		}
 
@@ -137,7 +139,7 @@ final class CronIntervalSniff extends Sniff {
 
 		if ( false === $callbackFunctionPtr ) {
 			$this->confused( $stackPtr );
-			return;
+			return null;
 		}
 
 		if ( \T_CLOSURE === $this->tokens[ $callbackFunctionPtr ]['code']
@@ -176,11 +178,11 @@ final class CronIntervalSniff extends Sniff {
 
 		if ( ! isset( $functionPtr ) ) {
 			$this->confused( $stackPtr );
-			return;
+			return null;
 		}
 
 		if ( ! isset( $this->tokens[ $functionPtr ]['scope_opener'], $this->tokens[ $functionPtr ]['scope_closer'] ) ) {
-			return;
+			return null;
 		}
 
 		$opening = $this->tokens[ $functionPtr ]['scope_opener'];
@@ -192,7 +194,7 @@ final class CronIntervalSniff extends Sniff {
 					$operator = $this->phpcsFile->findNext( \T_DOUBLE_ARROW, $i, null, false, null, true );
 					if ( false === $operator ) {
 						$this->confused( $stackPtr );
-						return;
+						return null;
 					}
 
 					$valueStart        = $this->phpcsFile->findNext( Tokens::$emptyTokens, ( $operator + 1 ), null, true, null, true );
@@ -261,7 +263,7 @@ final class CronIntervalSniff extends Sniff {
 					}
 
 					$this->confused( $stackPtr );
-					return;
+					return null;
 				}
 			}
 		}
@@ -279,8 +281,10 @@ final class CronIntervalSniff extends Sniff {
 					$minutes,
 				)
 			);
-			return;
+			return null;
 		}
+
+		return null;
 	}
 
 	/**
@@ -291,7 +295,7 @@ final class CronIntervalSniff extends Sniff {
 	 * @return int|false Integer stack pointer to the function keyword token or
 	 *                   false if not found.
 	 */
-	private function find_function_by_name( $functionName ) {
+	private function find_function_by_name( string $functionName ): int|false {
 		$functionPtr = false;
 		for ( $ptr = 0; $ptr < $this->phpcsFile->numTokens; $ptr++ ) {
 			if ( \T_FUNCTION === $this->tokens[ $ptr ]['code'] ) {
@@ -316,7 +320,7 @@ final class CronIntervalSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	public function confused( $stackPtr ) {
+	public function confused( int $stackPtr ): void {
 		$this->phpcsFile->addWarning(
 			'Detected changing of cron_schedules, but could not detect the interval value.',
 			$stackPtr,

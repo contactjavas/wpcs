@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -34,7 +36,7 @@ final class DeprecatedParameterValuesSniff extends AbstractFunctionParameterSnif
 	 *
 	 * @var string
 	 */
-	protected $group_name = 'wp_deprecated_parameter_values';
+	protected string $group_name = 'wp_deprecated_parameter_values';
 
 	/**
 	 * Array of function, argument, and replacement function for deprecated argument.
@@ -64,7 +66,7 @@ final class DeprecatedParameterValuesSniff extends AbstractFunctionParameterSnif
 	 *         )
 	 *     );
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'add_option' => array(
 			1 => array(
 				'name'   => 'option',
@@ -236,9 +238,9 @@ final class DeprecatedParameterValuesSniff extends AbstractFunctionParameterSnif
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		$this->set_minimum_wp_version();
 
 		foreach ( $this->target_functions[ $matched_content ] as $position => $parameter_args ) {
@@ -251,6 +253,8 @@ final class DeprecatedParameterValuesSniff extends AbstractFunctionParameterSnif
 
 			$this->process_parameter( $matched_content, $found_param, $parameter_args['values'] );
 		}
+
+		return null;
 	}
 
 	/**
@@ -265,7 +269,7 @@ final class DeprecatedParameterValuesSniff extends AbstractFunctionParameterSnif
 	 *
 	 * @return void
 	 */
-	protected function process_parameter( $matched_content, $parameter, $parameter_args ) {
+	protected function process_parameter( string $matched_content, array $parameter, array $parameter_args ): void {
 
 		$parameter_position = $this->phpcsFile->findNext(
 			Tokens::$emptyTokens,

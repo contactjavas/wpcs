@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -28,14 +30,14 @@ abstract class AbstractClassRestrictionsSniff extends AbstractFunctionRestrictio
 	 *
 	 * @var string
 	 */
-	protected $regex_pattern = '`^\\\\(?:%s)$`i';
+	protected string $regex_pattern = '`^\\\\(?:%s)$`i';
 
 	/**
 	 * Temporary storage for retrieved class name.
 	 *
 	 * @var string
 	 */
-	protected $classname;
+	protected ?string $classname = null;
 
 	/**
 	 * Groups of classes to restrict.
@@ -65,7 +67,7 @@ abstract class AbstractClassRestrictionsSniff extends AbstractFunctionRestrictio
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		// Prepare the function group regular expressions only once.
 		if ( false === $this->setup_groups( 'classes' ) ) {
 			return array();
@@ -88,10 +90,10 @@ abstract class AbstractClassRestrictionsSniff extends AbstractFunctionRestrictio
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 		// Reset the temporary storage before processing the token.
 		unset( $this->classname );
 
@@ -99,12 +101,14 @@ abstract class AbstractClassRestrictionsSniff extends AbstractFunctionRestrictio
 		if ( array_diff_key( $this->groups, $this->excluded_groups ) === array() ) {
 			// All groups have been excluded.
 			// Don't remove the listener as the exclude property can be changed inline.
-			return;
+			return null;
 		}
 
 		if ( true === $this->is_targetted_token( $stackPtr ) ) {
 			return $this->check_for_matches( $stackPtr );
 		}
+
+		return null;
 	}
 
 	/**
@@ -116,7 +120,7 @@ abstract class AbstractClassRestrictionsSniff extends AbstractFunctionRestrictio
 	 *
 	 * @return bool
 	 */
-	public function is_targetted_token( $stackPtr ) {
+	public function is_targetted_token( int $stackPtr ): bool {
 
 		$token     = $this->tokens[ $stackPtr ];
 		$classname = '';
@@ -181,10 +185,10 @@ abstract class AbstractClassRestrictionsSniff extends AbstractFunctionRestrictio
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function check_for_matches( $stackPtr ) {
+	public function check_for_matches( int $stackPtr ): ?int {
 		$skip_to = array();
 
 		foreach ( $this->groups as $groupName => $group ) {
@@ -199,7 +203,7 @@ abstract class AbstractClassRestrictionsSniff extends AbstractFunctionRestrictio
 		}
 
 		if ( empty( $skip_to ) || min( $skip_to ) === 0 ) {
-			return;
+			return null;
 		}
 
 		return min( $skip_to );
@@ -215,13 +219,15 @@ abstract class AbstractClassRestrictionsSniff extends AbstractFunctionRestrictio
 	 * @param string $matched_content The token content (function name) which was matched
 	 *                                in it original case.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 *
 	 * @phpcs:disable Generic.CodeAnalysis.UselessOverridingMethod.Found
 	 */
-	public function process_matched_token( $stackPtr, $group_name, $matched_content ) {
+	public function process_matched_token( int $stackPtr, string $group_name, string $matched_content ): ?int {
 		parent::process_matched_token( $stackPtr, $group_name, $matched_content );
+
+		return null;
 	}
 	// phpcs:enable
 
@@ -237,7 +243,7 @@ abstract class AbstractClassRestrictionsSniff extends AbstractFunctionRestrictio
 	 * @param string $classname Class name, potentially prefixed with namespaces.
 	 * @return string Regex escaped class name.
 	 */
-	protected function prepare_name_for_regex( $classname ) {
+	protected function prepare_name_for_regex( string $classname ): string {
 		$classname = trim( $classname, '\\' ); // Make sure all classnames have a \ prefix, but only one.
 		return parent::prepare_name_for_regex( $classname );
 	}
@@ -249,7 +255,7 @@ abstract class AbstractClassRestrictionsSniff extends AbstractFunctionRestrictio
 	 * @param int    $search_from The token position to search up from.
 	 * @return string Classname, potentially prefixed with the namespace.
 	 */
-	protected function get_namespaced_classname( $classname, $search_from ) {
+	protected function get_namespaced_classname( string $classname, int $search_from ): string {
 		// Don't do anything if this is already a fully qualified classname.
 		if ( empty( $classname ) || '\\' === $classname[0] ) {
 			return $classname;

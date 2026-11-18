@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHPCSUtils\BackCompat\Helper;
@@ -42,7 +44,7 @@ final class SnakeCaseHelper {
 	 *
 	 * @return string
 	 */
-	public static function get_suggestion( $name ) {
+	public static function get_suggestion( string $name ): string {
 		$suggested = preg_replace( '`(?<!_|^)([A-Z])`', '_$1', $name );
 
 		if ( preg_match( '`^[a-z0-9_]+$`i', $suggested ) === 1 ) {

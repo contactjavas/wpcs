@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -48,7 +50,7 @@ abstract class AbstractArrayAssignmentRestrictionsSniff extends Sniff {
 	 *
 	 * @var array<string, array>
 	 */
-	public static $groups = array();
+	public static array $groups = array();
 
 	/**
 	 * Cache for the excluded groups information.
@@ -57,7 +59,7 @@ abstract class AbstractArrayAssignmentRestrictionsSniff extends Sniff {
 	 *
 	 * @var array<string, bool>
 	 */
-	protected $excluded_groups = array();
+	protected array $excluded_groups = array();
 
 	/**
 	 * Cache for the group information.
@@ -66,14 +68,14 @@ abstract class AbstractArrayAssignmentRestrictionsSniff extends Sniff {
 	 *
 	 * @var array<string, array>
 	 */
-	protected $groups_cache = array();
+	protected array $groups_cache = array();
 
 	/**
 	 * Returns an array of tokens this test wants to listen for.
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		// Retrieve the groups only once and don't set up a listener if there are no groups.
 		if ( false === $this->setup_groups() ) {
 			return array();
@@ -102,7 +104,7 @@ abstract class AbstractArrayAssignmentRestrictionsSniff extends Sniff {
 	 *
 	 * @return array<string, array>
 	 */
-	abstract public function getGroups();
+	abstract public function getGroups(): array;
 
 	/**
 	 * Cache the groups.
@@ -111,7 +113,7 @@ abstract class AbstractArrayAssignmentRestrictionsSniff extends Sniff {
 	 *
 	 * @return bool True if the groups were setup. False if not.
 	 */
-	protected function setup_groups() {
+	protected function setup_groups(): bool {
 		$this->groups_cache = $this->getGroups();
 
 		if ( empty( $this->groups_cache ) && empty( self::$groups ) ) {
@@ -131,15 +133,15 @@ abstract class AbstractArrayAssignmentRestrictionsSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		$this->excluded_groups = RulesetPropertyHelper::merge_custom_array( $this->exclude );
 		if ( array_diff_key( $this->groups_cache, $this->excluded_groups ) === array() ) {
 			// All groups have been excluded.
 			// Don't remove the listener as the exclude property can be changed inline.
-			return;
+			return null;
 		}
 
 		$token = $this->tokens[ $stackPtr ];
@@ -150,7 +152,7 @@ abstract class AbstractArrayAssignmentRestrictionsSniff extends Sniff {
 				&& \T_COALESCE_EQUAL !== $this->tokens[ $equalPtr ]['code']
 			) {
 				// This is not an assignment. Bow out.
-				return;
+				return null;
 			}
 		}
 
@@ -195,7 +197,7 @@ abstract class AbstractArrayAssignmentRestrictionsSniff extends Sniff {
 			 * Covers assignments via query parameters: `$foo = 'bar=taz&other=thing';`.
 			 */
 			if ( preg_match_all( '#(?:^|&)([a-z_]+)=([^&]*)#i', TextStrings::stripQuotes( $token['content'] ), $matches ) <= 0 ) {
-				return; // No assignments here, nothing to check.
+				return null; // No assignments here, nothing to check.
 			}
 
 			foreach ( $matches[1] as $match_nr => $key ) {
@@ -208,7 +210,7 @@ abstract class AbstractArrayAssignmentRestrictionsSniff extends Sniff {
 		}
 
 		if ( empty( $inst ) ) {
-			return;
+			return null;
 		}
 
 		foreach ( $this->groups_cache as $groupName => $group ) {
@@ -242,6 +244,8 @@ abstract class AbstractArrayAssignmentRestrictionsSniff extends Sniff {
 				);
 			}
 		}
+
+		return null;
 	}
 
 	/**
@@ -257,5 +261,5 @@ abstract class AbstractArrayAssignmentRestrictionsSniff extends Sniff {
 	 * @return mixed FALSE if no match, TRUE if matches, STRING if matches
 	 *               with custom error message passed to ->process().
 	 */
-	abstract public function callback( $key, $val, $line, $group );
+	abstract public function callback( string $key, mixed $val, int $line, array $group ): mixed;
 }

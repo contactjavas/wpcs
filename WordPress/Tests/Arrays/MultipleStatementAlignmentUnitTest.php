@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Arrays;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
@@ -29,7 +31,7 @@ final class MultipleStatementAlignmentUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @var int
 	 */
-	private $tab_width = 4;
+	private int $tab_width = 4;
 
 	/**
 	 * Set CLI values before the file is tested.
@@ -39,7 +41,7 @@ final class MultipleStatementAlignmentUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return void
 	 */
-	public function setCliValues( $testFile, $config ) {
+	public function setCliValues( string $testFile, \PHP_CodeSniffer\Config $config ): void {
 		// Tab width setting is only needed for the tabbed file.
 		if ( 'MultipleStatementAlignmentUnitTest.1.inc' === $testFile ) {
 			$config->tabWidth = $this->tab_width;
@@ -53,7 +55,7 @@ final class MultipleStatementAlignmentUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected errors.
 	 */
-	public function getErrorList() {
+	public function getErrorList(): array {
 		return array(
 			1 => 3, // Invalid property value error.
 		);
@@ -64,7 +66,7 @@ final class MultipleStatementAlignmentUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected warnings.
 	 */
-	public function getWarningList() {
+	public function getWarningList(): array {
 		return array(
 			8   => 2,
 			11  => 1,

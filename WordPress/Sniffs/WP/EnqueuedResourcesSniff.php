@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -29,7 +31,7 @@ final class EnqueuedResourcesSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		$targets   = Collections::textStringStartTokens();
 		$targets[] = \T_INLINE_HTML;
 
@@ -41,10 +43,10 @@ final class EnqueuedResourcesSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		$end_ptr = $stackPtr;
 		$content = $this->tokens[ $stackPtr ]['content'];
@@ -54,7 +56,7 @@ final class EnqueuedResourcesSniff extends Sniff {
 				$content = TextStrings::getCompleteTextString( $this->phpcsFile, $stackPtr );
 			} catch ( ValueError $e ) {
 				// Parse error/live coding.
-				return;
+				return null;
 			}
 		}
 
@@ -90,7 +92,7 @@ final class EnqueuedResourcesSniff extends Sniff {
 	 *
 	 * @return int The stack pointer to the token containing the start of the match.
 	 */
-	private function find_token_in_multiline_string( $stackPtr, $content, $match_offset ) {
+	private function find_token_in_multiline_string( int $stackPtr, string $content, int $match_offset ): int {
 		$newline_count = 0;
 		if ( $match_offset > 0 ) {
 			$newline_count = substr_count( $content, "\n", 0, $match_offset );

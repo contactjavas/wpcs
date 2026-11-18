@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\WhiteSpace;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
@@ -28,7 +30,7 @@ final class ObjectOperatorSpacingUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int>
 	 */
-	public function getErrorList() {
+	public function getErrorList(): array {
 		return array(
 			11 => 2,
 			12 => 2,
@@ -53,7 +55,7 @@ final class ObjectOperatorSpacingUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int>
 	 */
-	public function getWarningList() {
+	public function getWarningList(): array {
 		return array();
 	}
 }

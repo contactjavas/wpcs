@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHPCSUtils\Utils\PassedParameters;
@@ -82,7 +84,7 @@ final class GetMetaSingleSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	protected $group_name = 'get_meta';
+	protected string $group_name = 'get_meta';
 
 	/**
 	 * List of functions this sniff should examine.
@@ -103,7 +105,7 @@ final class GetMetaSingleSniff extends AbstractFunctionParameterSniff {
 	 *                                                              about the name and position of
 	 *                                                              the relevant parameters.
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'get_comment_meta'     => self::SPECIFIC_META_FUNCTIONS_FORMAT,
 		'get_metadata'         => self::GENERIC_META_FUNCTIONS_FORMAT,
 		'get_metadata_default' => self::GENERIC_META_FUNCTIONS_FORMAT,
@@ -125,21 +127,21 @@ final class GetMetaSingleSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		$condition   = $this->target_functions[ $matched_content ]['condition'];
 		$recommended = $this->target_functions[ $matched_content ]['recommended'];
 
 		$meta_key = PassedParameters::getParameterFromStack( $parameters, $condition['position'], $condition['param_name'] );
 		if ( ! is_array( $meta_key ) ) {
-			return;
+			return null;
 		}
 
 		$single = PassedParameters::getParameterFromStack( $parameters, $recommended['position'], $recommended['param_name'] );
 		if ( is_array( $single ) ) {
 			$this->phpcsFile->recordMetric( $stackPtr, self::METRIC_NAME, 'yes' );
-			return;
+			return null;
 		}
 
 		$this->phpcsFile->recordMetric( $stackPtr, self::METRIC_NAME, 'no' );
@@ -157,5 +159,7 @@ final class GetMetaSingleSniff extends AbstractFunctionParameterSniff {
 			'Missing',
 			$message_data
 		);
+
+		return null;
 	}
 }

@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\FormattingFunctionsHelper;
 
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -34,7 +36,7 @@ final class IsFormattingFunctionUnitTest extends TestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataIsFormattingFunction' )]
-	public function testIsFormattingFunction( $functionName, $expectedResult ) {
+	public function testIsFormattingFunction( string $functionName, bool $expectedResult ): void {
 		$this->assertSame(
 			$expectedResult,
 			FormattingFunctionsHelper::is_formatting_function( $functionName )
@@ -49,7 +51,7 @@ final class IsFormattingFunctionUnitTest extends TestCase {
 	 *
 	 * @return array<string, array<string, bool|string>>
 	 */
-	public static function dataIsFormattingFunction() {
+	public static function dataIsFormattingFunction(): array {
 		return array(
 			'lowercase_name'            => array(
 				'functionName'   => 'sprintf',

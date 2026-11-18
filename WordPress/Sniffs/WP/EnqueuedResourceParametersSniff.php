@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -40,7 +42,7 @@ final class EnqueuedResourceParametersSniff extends AbstractFunctionParameterSni
 	 *
 	 * @var string
 	 */
-	protected $group_name = 'Enqueued';
+	protected string $group_name = 'Enqueued';
 
 	/**
 	 * List of enqueued functions that need to be checked for use of the in_footer and version arguments.
@@ -49,7 +51,7 @@ final class EnqueuedResourceParametersSniff extends AbstractFunctionParameterSni
 	 *
 	 * @var array<string, true> Key is function name, value irrelevant.
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'wp_register_script' => true,
 		'wp_enqueue_script'  => true,
 		'wp_register_style'  => true,
@@ -63,7 +65,7 @@ final class EnqueuedResourceParametersSniff extends AbstractFunctionParameterSni
 	 *
 	 * @var array<int|string, int|string>
 	 */
-	private $false_tokens = array(
+	private array $false_tokens = array(
 		\T_FALSE        => \T_FALSE,
 		\T_NS_SEPARATOR => \T_NS_SEPARATOR, // Needed to handle fully qualified \false (PHPCS 3.x).
 	);
@@ -76,7 +78,7 @@ final class EnqueuedResourceParametersSniff extends AbstractFunctionParameterSni
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		$this->false_tokens += Tokens::$emptyTokens;
 
 		return parent::register();
@@ -93,13 +95,13 @@ final class EnqueuedResourceParametersSniff extends AbstractFunctionParameterSni
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		// Check to see if a source ($src) is specified.
 		$src_param = PassedParameters::getParameterFromStack( $parameters, 2, 'src' );
 		if ( false === $src_param ) {
-			return;
+			return null;
 		}
 
 		/*
@@ -149,7 +151,7 @@ final class EnqueuedResourceParametersSniff extends AbstractFunctionParameterSni
 		 * as this parameter is not available to wp_register_style and wp_enqueue_style.
 		 */
 		if ( 'wp_register_script' !== $matched_content && 'wp_enqueue_script' !== $matched_content ) {
-			return;
+			return null;
 		}
 
 		$infooter_param = PassedParameters::getParameterFromStack( $parameters, 5, 'in_footer' );
@@ -163,6 +165,8 @@ final class EnqueuedResourceParametersSniff extends AbstractFunctionParameterSni
 				array( $matched_content )
 			);
 		}
+
+		return null;
 	}
 
 	/**
@@ -181,7 +185,7 @@ final class EnqueuedResourceParametersSniff extends AbstractFunctionParameterSni
 	 *              False if the parameter is not falsy or when it
 	 *              couldn't be reliably determined.
 	 */
-	protected function is_falsy( $start, $end ) {
+	protected function is_falsy( int $start, int $end ): bool {
 		// Find anything excluding the false tokens.
 		$has_non_false = $this->phpcsFile->findNext( $this->false_tokens, $start, ( $end + 1 ), true );
 		// If no non-false tokens are found, we are good.

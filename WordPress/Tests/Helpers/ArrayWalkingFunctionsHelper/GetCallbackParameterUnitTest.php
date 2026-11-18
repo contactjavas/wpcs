@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\ArrayWalkingFunctionsHelper;
 
 use PHPCSUtils\TestUtils\UtilityMethodTestCase;
@@ -27,7 +29,7 @@ final class GetCallbackParameterUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetCallbackParameterReturnsFalseIfTokenDoesNotExist() {
+	public function testGetCallbackParameterReturnsFalseIfTokenDoesNotExist(): void {
 		$this->assertFalse( ArrayWalkingFunctionsHelper::get_callback_parameter( self::$phpcsFile, -1 ) );
 	}
 
@@ -44,7 +46,7 @@ final class GetCallbackParameterUnitTest extends UtilityMethodTestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataGetCallbackParameter' )]
-	public function testGetCallbackParameter( $testMarker, $expectedContent ) {
+	public function testGetCallbackParameter( string $testMarker, string|false $expectedContent ): void {
 		$stackPtr = $this->getTargetToken( $testMarker, array( \T_STRING, \T_NAME_FULLY_QUALIFIED ) );
 		$result   = ArrayWalkingFunctionsHelper::get_callback_parameter( self::$phpcsFile, $stackPtr );
 
@@ -63,7 +65,7 @@ final class GetCallbackParameterUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return array<string, array<string, string|false>>
 	 */
-	public static function dataGetCallbackParameter() {
+	public static function dataGetCallbackParameter(): array {
 		return array(
 			// Cases where false should be returned.
 			'not_array_walking_function' => array(

@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\WP;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
@@ -29,7 +31,7 @@ final class I18nUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return void
 	 */
-	public function setCliValues( $testFile, $config ) {
+	public function setCliValues( string $testFile, \PHP_CodeSniffer\Config $config ): void {
 		// Test overruling the text domain from the command line for one test file.
 		if ( 'I18nUnitTest.3.inc' === $testFile ) {
 			$config->setConfigData( 'text_domain', 'something', true );
@@ -46,7 +48,7 @@ final class I18nUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected errors.
 	 */
-	public function getErrorList( $testFile = '' ) {
+	public function getErrorList( string $testFile = '' ): array {
 
 		switch ( $testFile ) {
 			case 'I18nUnitTest.1.inc':
@@ -186,7 +188,7 @@ final class I18nUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected warnings.
 	 */
-	public function getWarningList( $testFile = '' ) {
+	public function getWarningList( string $testFile = '' ): array {
 		switch ( $testFile ) {
 			case 'I18nUnitTest.1.inc':
 				return array(

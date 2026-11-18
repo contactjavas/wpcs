@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\Security;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -61,7 +63,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @var array<string, array>
 	 */
-	protected $unsafePrintingFunctions = array(
+	protected array $unsafePrintingFunctions = array(
 		'_e'  => array(
 			'alternative' => 'esc_html_e() or esc_attr_e()',
 			'params'      => array(
@@ -83,7 +85,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $safe_php_constants = array(
+	private array $safe_php_constants = array(
 		'PHP_EOL'             => true, // String.
 		'PHP_VERSION'         => true, // Integer.
 		'PHP_MAJOR_VERSION'   => true, // Integer.
@@ -103,7 +105,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @var array<string|int, string|int>
 	 */
-	private $safe_components = array(
+	private array $safe_components = array(
 		\T_LNUMBER                  => \T_LNUMBER,
 		\T_DNUMBER                  => \T_DNUMBER,
 		\T_TRUE                     => \T_TRUE,
@@ -123,7 +125,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @var array<string|int, string|int>
 	 */
-	private $target_keywords = array(
+	private array $target_keywords = array(
 		\T_EXIT  => \T_EXIT,
 		\T_PRINT => \T_PRINT,
 		\T_THROW => \T_THROW,
@@ -132,9 +134,9 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 	/**
 	 * Returns an array of tokens this test wants to listen for.
 	 *
-	 * @return string|int[]
+	 * @return array<int|string>
 	 */
-	public function register() {
+	public function register(): array {
 		// Enrich the list of "safe components" tokens.
 		$this->safe_components += Tokens::$comparisonTokens;
 		$this->safe_components += Tokens::$operators;
@@ -156,7 +158,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		// Make sure all array keys are lowercase (could contain user-provided function names).
 		$printing_functions = array_change_key_case( $this->get_printing_functions(), \CASE_LOWER );
 
@@ -180,10 +182,10 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 		$start = ( $stackPtr + 1 );
 
 		switch ( $this->tokens[ $stackPtr ]['code'] ) {
@@ -206,7 +208,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 				$params = PassedParameters::getParameters( $this->phpcsFile, $stackPtr );
 				if ( empty( $params ) ) {
 					// Live coding/parse error or an exit/die which doesn't pass a status. Ignore.
-					return;
+					return null;
 				}
 
 				// There should only be one parameter ($status), but just to be on the safe side.
@@ -229,7 +231,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 				do {
 					$next_relevant = $this->phpcsFile->findNext( $ignore, ( $next_relevant + 1 ), null, true );
 					if ( false === $next_relevant ) {
-						return;
+						return null;
 					}
 
 					if ( \T_NEW === $this->tokens[ $next_relevant ]['code'] ) {
@@ -239,7 +241,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 					// Skip over attribute declarations when searching for the open parenthesis.
 					if ( \T_ATTRIBUTE === $this->tokens[ $next_relevant ]['code'] ) {
 						if ( isset( $this->tokens[ $next_relevant ]['attribute_closer'] ) === false ) {
-							return;
+							return null;
 						}
 
 						$next_relevant = $this->tokens[ $next_relevant ]['attribute_closer'];
@@ -253,7 +255,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 					|| isset( $this->tokens[ $next_relevant ]['parenthesis_closer'] ) === false
 				) {
 					// Live coding/parse error or a pre-created exception. Nothing to do for us.
-					return;
+					return null;
 				}
 
 				$end = $this->tokens[ $next_relevant ]['parenthesis_closer'];
@@ -305,7 +307,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 					$last_non_empty = $this->phpcsFile->findPrevious( Tokens::$emptyTokens, $end, null, true );
 					if ( \T_SEMICOLON !== $this->tokens[ $last_non_empty ]['code'] ) {
 						// Live coding/parse error at end of file. Ignore.
-						return;
+						return null;
 					}
 				}
 
@@ -340,7 +342,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 
 					if ( false === $inline_else ) {
 						// Live coding/parse error. Bow out.
-						return;
+						return null;
 					}
 
 					$end = $inline_else;
@@ -353,7 +355,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 				$end = $this->phpcsFile->findNext( array( \T_SEMICOLON, \T_CLOSE_TAG ), $stackPtr );
 				if ( false === $end ) {
 					// Live coding/parse error. Bow out.
-					return;
+					return null;
 				}
 
 				break;
@@ -372,10 +374,10 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 	 * @param string $matched_content The token content (function name) which was matched
 	 *                                in lowercase.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_matched_token( $stackPtr, $group_name, $matched_content ) {
+	public function process_matched_token( int $stackPtr, string $group_name, string $matched_content ): ?int {
 		$matched_content = ltrim( strtolower( $matched_content ), '\\' );
 		// Make sure we only deal with actual function calls, not function import use statements.
 		$next_non_empty = $this->phpcsFile->findNext( Tokens::$emptyTokens, ( $stackPtr + 1 ), null, true );
@@ -384,7 +386,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 			|| isset( $this->tokens[ $next_non_empty ]['parenthesis_closer'] ) === false
 		) {
 			// Live coding, parse error or not a function _call_.
-			return;
+			return null;
 		}
 
 		$end = $this->tokens[ $next_non_empty ]['parenthesis_closer'];
@@ -473,7 +475,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @return int Integer stack pointer to skip forward.
 	 */
-	protected function check_code_is_escaped( $start, $end, $code = 'OutputNotEscaped' ) {
+	protected function check_code_is_escaped( int $start, int $end, string $code = 'OutputNotEscaped' ): int {
 		/*
 		 * Check for a ternary operator.
 		 * We only need to do this here if this statement is lacking parenthesis.
@@ -810,7 +812,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 	 * @return int|false Stack pointer to the ternary or FALSE if no ternary was found or
 	 *                   if this is a short ternary.
 	 */
-	private function find_long_ternary( $start, $end ) {
+	private function find_long_ternary( int $start, int $end ): int|false {
 		for ( $i = $start; $i < $end; $i++ ) {
 			// Ignore anything within square brackets.
 			if ( isset( $this->tokens[ $i ]['bracket_opener'], $this->tokens[ $i ]['bracket_closer'] )
@@ -867,7 +869,7 @@ class EscapeOutputSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @return int|false Stack pointer to skip to or FALSE if the match expression contained a parse error.
 	 */
-	private function walk_match_expression( $stackPtr, $code ) {
+	private function walk_match_expression( int $stackPtr, string $code ): int|false {
 		if ( ! isset( $this->tokens[ $stackPtr ]['scope_opener'], $this->tokens[ $stackPtr ]['scope_closer'] ) ) {
 			// Parse error/live coding. Shouldn't be possible as PHP[CS] will tokenize the keyword as `T_STRING` in that case.
 			return false; // @codeCoverageIgnore

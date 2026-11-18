@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\ContextHelper;
 
 use PHPCSUtils\TestUtils\UtilityMethodTestCase;
@@ -34,7 +36,7 @@ final class IsInIssetOrEmptyUnitTest extends UtilityMethodTestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataIsInIssetOrEmpty' )]
-	public function testIsInIssetOrEmpty( $testMarker, $expectedResult ) {
+	public function testIsInIssetOrEmpty( string $testMarker, bool $expectedResult ): void {
 		$stackPtr = $this->getTargetToken( $testMarker, \T_VARIABLE );
 		$result   = ContextHelper::is_in_isset_or_empty( self::$phpcsFile, $stackPtr );
 
@@ -49,7 +51,7 @@ final class IsInIssetOrEmptyUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return array<string, array<string, bool|string>>
 	 */
-	public static function dataIsInIssetOrEmpty() {
+	public static function dataIsInIssetOrEmpty(): array {
 		return array(
 			// Cases that should return false.
 			'bare_variable' => array(

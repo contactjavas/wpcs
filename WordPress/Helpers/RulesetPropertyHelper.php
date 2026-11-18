@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 /**
@@ -44,14 +46,16 @@ final class RulesetPropertyHelper {
 	 *               passed as a string.
 	 * @since 3.0.0  Moved from the Sniff class to this class.
 	 *
-	 * @param array $custom Custom list as provided via a ruleset.
+	 * @param mixed $custom Custom list as provided via a ruleset. Anything which is not
+	 *                      a non-empty array (PHPCS may assign a string, bool or null
+	 *                      to ruleset properties) is ignored.
 	 * @param array $base   Optional. Base list. Defaults to an empty array.
 	 *                      Expects `value => true` format when `$flip` is true.
 	 * @param bool  $flip   Optional. Whether or not to flip the custom list.
 	 *                      Defaults to true.
 	 * @return array
 	 */
-	public static function merge_custom_array( $custom, array $base = array(), $flip = true ) {
+	public static function merge_custom_array( mixed $custom, array $base = array(), bool $flip = true ): array {
 		if ( true === $flip ) {
 			$base = array_filter( $base );
 		}

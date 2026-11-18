@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\PrintingFunctionsTrait;
 
 use PHPUnit\Framework\TestCase;
@@ -26,7 +28,7 @@ final class GetPrintingFunctionsUnitTest extends TestCase {
 	 *
 	 * @var object
 	 */
-	private $testClass;
+	private ?object $testClass = null;
 
 	/**
 	 * Set up the test class.
@@ -42,7 +44,7 @@ final class GetPrintingFunctionsUnitTest extends TestCase {
 			 *
 			 * @return int
 			 */
-			public function get_default_function_count() {
+			public function get_default_function_count(): int {
 				return count( $this->printingFunctions );
 			}
 		};
@@ -53,7 +55,7 @@ final class GetPrintingFunctionsUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetPrintingFunctionsWithoutCustomFunctions() {
+	public function testGetPrintingFunctionsWithoutCustomFunctions(): void {
 		$result = $this->testClass->get_printing_functions();
 
 		$this->assertIsArray( $result, 'Function list is not an array' );
@@ -67,7 +69,7 @@ final class GetPrintingFunctionsUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetPrintingFunctionsIncludesCustomFunctions() {
+	public function testGetPrintingFunctionsIncludesCustomFunctions(): void {
 		$this->testClass->customPrintingFunctions = array( 'my_custom_print' );
 
 		$result = $this->testClass->get_printing_functions();
@@ -84,7 +86,7 @@ final class GetPrintingFunctionsUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetPrintingFunctionsUpdatesWhenCustomFunctionsChange() {
+	public function testGetPrintingFunctionsUpdatesWhenCustomFunctionsChange(): void {
 		$this->testClass->customPrintingFunctions = array( 'first_custom' );
 		$result                                   = $this->testClass->get_printing_functions();
 		$this->assertArrayHasKey( 'first_custom', $result, 'first_custom() is not in the function list' );

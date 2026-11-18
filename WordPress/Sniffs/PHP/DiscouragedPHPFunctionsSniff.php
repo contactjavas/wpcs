@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\PHP;
 
 use WordPressCS\WordPress\AbstractFunctionRestrictionsSniff;
@@ -33,7 +35,7 @@ final class DiscouragedPHPFunctionsSniff extends AbstractFunctionRestrictionsSni
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		return array(
 			'serialize' => array(
 				'type'      => 'warning',

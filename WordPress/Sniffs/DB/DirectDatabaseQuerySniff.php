@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\DB;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -66,7 +68,7 @@ final class DirectDatabaseQuerySniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	protected $addedCustomFunctions = array(
+	protected array $addedCustomFunctions = array(
 		'cacheget'    => array(),
 		'cacheset'    => array(),
 		'cachedelete' => array(),
@@ -81,7 +83,7 @@ final class DirectDatabaseQuerySniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	protected $cacheGetFunctions = array(
+	protected array $cacheGetFunctions = array(
 		'wp_cache_get'                 => true,
 		'wp_cache_get_multiple'        => true,
 		'wp_cache_get_multiple_salted' => true,
@@ -97,7 +99,7 @@ final class DirectDatabaseQuerySniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	protected $cacheSetFunctions = array(
+	protected array $cacheSetFunctions = array(
 		'wp_cache_add'                 => true,
 		'wp_cache_add_multiple'        => true,
 		'wp_cache_set'                 => true,
@@ -115,7 +117,7 @@ final class DirectDatabaseQuerySniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	protected $cacheDeleteFunctions = array(
+	protected array $cacheDeleteFunctions = array(
 		'wp_cache_delete'          => true,
 		'wp_cache_delete_multiple' => true,
 		'wp_cache_flush_group'     => true,
@@ -141,7 +143,7 @@ final class DirectDatabaseQuerySniff extends Sniff {
 	 *
 	 * @var array[]
 	 */
-	protected $methods = array(
+	protected array $methods = array(
 		'cachable' => array(
 			'delete'      => true,
 			'get_var'     => true,
@@ -162,7 +164,7 @@ final class DirectDatabaseQuerySniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		return array(
 			\T_VARIABLE,
 		);
@@ -173,14 +175,14 @@ final class DirectDatabaseQuerySniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		// Check for $wpdb variable.
 		if ( '$wpdb' !== $this->tokens[ $stackPtr ]['content'] ) {
-			return;
+			return null;
 		}
 
 		$is_object_call = $this->phpcsFile->findNext( Tokens::$emptyTokens, ( $stackPtr + 1 ), null, true );
@@ -189,7 +191,7 @@ final class DirectDatabaseQuerySniff extends Sniff {
 				&& \T_NULLSAFE_OBJECT_OPERATOR !== $this->tokens[ $is_object_call ]['code'] )
 		) {
 			// This is not a call to the wpdb object.
-			return;
+			return null;
 		}
 
 		$methodPtr = $this->phpcsFile->findNext( Tokens::$emptyTokens, ( $is_object_call + 1 ), null, true );
@@ -198,12 +200,12 @@ final class DirectDatabaseQuerySniff extends Sniff {
 		$this->mergeFunctionLists();
 
 		if ( ! isset( $this->methods['all'][ $method ] ) ) {
-			return;
+			return null;
 		}
 
 		$endOfStatement = $this->phpcsFile->findNext( array( \T_SEMICOLON, \T_CLOSE_TAG ), ( $stackPtr + 1 ) );
 		if ( false === $endOfStatement ) {
-			return;
+			return null;
 		}
 
 		// Check for Database Schema Changes/ table truncation.
@@ -215,7 +217,7 @@ final class DirectDatabaseQuerySniff extends Sniff {
 
 			if ( strpos( strtoupper( TextStrings::stripQuotes( $this->tokens[ $_pos ]['content'] ) ), 'TRUNCATE ' ) === 0 ) {
 				// Ignore queries to truncate the database as caching those is irrelevant and they need a direct db query.
-				return;
+				return null;
 			}
 
 			if ( preg_match( '#\b(?:ALTER|CREATE|DROP)\b#i', $this->tokens[ $_pos ]['content'] ) > 0 ) {
@@ -285,7 +287,7 @@ final class DirectDatabaseQuerySniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function mergeFunctionLists() {
+	protected function mergeFunctionLists(): void {
 		if ( ! isset( $this->methods['all'] ) ) {
 			$this->methods['all'] = array_merge( $this->methods['cachable'], $this->methods['noncachable'] );
 		}

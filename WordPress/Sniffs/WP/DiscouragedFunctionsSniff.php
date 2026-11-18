@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use WordPressCS\WordPress\AbstractFunctionRestrictionsSniff;
@@ -32,7 +34,7 @@ final class DiscouragedFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		return array(
 			'query_posts' => array(
 				'type'      => 'warning',

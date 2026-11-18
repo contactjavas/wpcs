@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\UnslashingFunctionsHelper;
 
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -34,7 +36,7 @@ final class IsUnslashingFunctionUnitTest extends TestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataIsUnslashingFunction' )]
-	public function testIsUnslashingFunction( $functionName, $expectedResult ) {
+	public function testIsUnslashingFunction( string $functionName, bool $expectedResult ): void {
 		$this->assertSame(
 			$expectedResult,
 			UnslashingFunctionsHelper::is_unslashing_function( $functionName )
@@ -49,7 +51,7 @@ final class IsUnslashingFunctionUnitTest extends TestCase {
 	 *
 	 * @return array<string, array<string, bool|string>>
 	 */
-	public static function dataIsUnslashingFunction() {
+	public static function dataIsUnslashingFunction(): array {
 		return array(
 			'lowercase_name'             => array(
 				'functionName'   => 'wp_unslash',

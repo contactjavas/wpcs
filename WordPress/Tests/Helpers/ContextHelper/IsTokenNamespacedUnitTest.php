@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\ContextHelper;
 
 use PHPCSUtils\TestUtils\UtilityMethodTestCase;
@@ -28,7 +30,7 @@ final class IsTokenNamespacedUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIsTokenNamespacedReturnsFalseIfTokenDoesNotExist() {
+	public function testIsTokenNamespacedReturnsFalseIfTokenDoesNotExist(): void {
 		$this->assertFalse( ContextHelper::is_token_namespaced( self::$phpcsFile, -1 ) );
 	}
 
@@ -45,7 +47,7 @@ final class IsTokenNamespacedUnitTest extends UtilityMethodTestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataIsTokenNamespaced' )]
-	public function testIsTokenNamespaced( $testMarker, $expectedResult, $tokenContent ) {
+	public function testIsTokenNamespaced( string $testMarker, bool $expectedResult, string $tokenContent ): void {
 		$stackPtr = $this->getTargetToken( $testMarker, Collections::nameTokens(), $tokenContent );
 		$result   = ContextHelper::is_token_namespaced( self::$phpcsFile, $stackPtr );
 
@@ -60,7 +62,7 @@ final class IsTokenNamespacedUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return array<string, array<string, bool|string>>
 	 */
-	public static function dataIsTokenNamespaced() {
+	public static function dataIsTokenNamespaced(): array {
 		return array(
 			// Cases that should return false.
 			'unqualified' => array(

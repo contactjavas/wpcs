@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 /**
@@ -27,7 +29,7 @@ final class UnslashingFunctionsHelper {
 	 *
 	 * @var array<string, bool>
 	 */
-	private static $unslashingFunctions = array(
+	private static array $unslashingFunctions = array(
 		'stripslashes_deep'              => true,
 		'stripslashes_from_strings_only' => true,
 		'wp_unslash'                     => true,
@@ -40,7 +42,7 @@ final class UnslashingFunctionsHelper {
 	 *
 	 * @return array<string, bool>
 	 */
-	public static function get_functions() {
+	public static function get_functions(): array {
 		return self::$unslashingFunctions;
 	}
 
@@ -53,7 +55,7 @@ final class UnslashingFunctionsHelper {
 	 *
 	 * @return bool
 	 */
-	public static function is_unslashing_function( $functionName ) {
+	public static function is_unslashing_function( string $functionName ): bool {
 		return isset( self::$unslashingFunctions[ ltrim( strtolower( $functionName ), '\\' ) ] );
 	}
 }

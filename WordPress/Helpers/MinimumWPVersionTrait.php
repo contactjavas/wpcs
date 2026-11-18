@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHPCSUtils\BackCompat\Helper;
@@ -79,7 +81,7 @@ trait MinimumWPVersionTrait {
 	 *
 	 * @var string WordPress version.
 	 */
-	private $default_minimum_wp_version = '6.7';
+	private string $default_minimum_wp_version = '6.7';
 
 	/**
 	 * Overrule the minimum supported WordPress version with a command-line/config value.
@@ -95,7 +97,7 @@ trait MinimumWPVersionTrait {
 	 *
 	 * @return void
 	 */
-	final protected function set_minimum_wp_version() {
+	final protected function set_minimum_wp_version(): void {
 		$minimum_wp_version = '';
 
 		// Use a ruleset provided value if available.
@@ -114,7 +116,7 @@ trait MinimumWPVersionTrait {
 			$minimum_wp_version = $this->default_minimum_wp_version;
 		}
 
-		$this->minimum_wp_version = $minimum_wp_version;
+		$this->minimum_wp_version = (string) $minimum_wp_version;
 	}
 
 	/**
@@ -128,7 +130,7 @@ trait MinimumWPVersionTrait {
 	 *
 	 * @return bool
 	 */
-	final protected function wp_version_compare( $version1, $version2, $operator ) {
+	final protected function wp_version_compare( string $version1, string $version2, string $operator ): bool {
 		$version1 = $this->normalize_version_number( $version1 );
 		$version2 = $this->normalize_version_number( $version2 );
 
@@ -149,7 +151,7 @@ trait MinimumWPVersionTrait {
 	 *
 	 * @return string
 	 */
-	private function normalize_version_number( $version ) {
+	private function normalize_version_number( string $version ): string {
 		if ( preg_match( '`^\d+\.\d+$`', $version ) ) {
 			$version .= '.0';
 		}

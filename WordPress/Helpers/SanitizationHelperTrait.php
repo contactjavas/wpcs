@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHP_CodeSniffer\Files\File;
@@ -77,7 +79,7 @@ trait SanitizationHelperTrait {
 	 *
 	 * @var array<string, true>
 	 */
-	private $sanitizingFunctions = array(
+	private array $sanitizingFunctions = array(
 		'_wp_handle_upload'          => true,
 		'esc_url_raw'                => true,
 		'filter_input'               => true,
@@ -136,7 +138,7 @@ trait SanitizationHelperTrait {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $unslashingSanitizingFunctions = array(
+	private array $unslashingSanitizingFunctions = array(
 		'absint'                => true,
 		'boolval'               => true,
 		'count'                 => true,
@@ -162,7 +164,7 @@ trait SanitizationHelperTrait {
 	 *
 	 * @var array<string, string[]>
 	 */
-	private $addedCustomSanitizingFunctions = array(
+	private array $addedCustomSanitizingFunctions = array(
 		'sanitize'        => array(),
 		'unslashsanitize' => array(),
 	);
@@ -174,7 +176,7 @@ trait SanitizationHelperTrait {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $allSanitizingFunctions = array();
+	private array $allSanitizingFunctions = array();
 
 	/**
 	 * Combined list of WP/PHP native and custom sanitizing and unslashing functions.
@@ -183,7 +185,7 @@ trait SanitizationHelperTrait {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $allUnslashingSanitizingFunctions = array();
+	private array $allUnslashingSanitizingFunctions = array();
 
 	/**
 	 * Retrieve a list of all known sanitizing functions.
@@ -192,7 +194,7 @@ trait SanitizationHelperTrait {
 	 *
 	 * @return array<string, bool>
 	 */
-	final public function get_sanitizing_functions() {
+	final public function get_sanitizing_functions(): array {
 		if ( array() === $this->allSanitizingFunctions
 			|| $this->customSanitizingFunctions !== $this->addedCustomSanitizingFunctions['sanitize']
 		) {
@@ -214,7 +216,7 @@ trait SanitizationHelperTrait {
 	 *
 	 * @return array<string, bool>
 	 */
-	final public function get_sanitizing_and_unslashing_functions() {
+	final public function get_sanitizing_and_unslashing_functions(): array {
 		if ( array() === $this->allUnslashingSanitizingFunctions
 			|| $this->customUnslashingSanitizingFunctions !== $this->addedCustomSanitizingFunctions['unslashsanitize']
 		) {
@@ -238,7 +240,7 @@ trait SanitizationHelperTrait {
 	 *
 	 * @return bool
 	 */
-	final public function is_sanitizing_function( $functionName ) {
+	final public function is_sanitizing_function( string $functionName ): bool {
 		return isset( $this->get_sanitizing_functions()[ ltrim( strtolower( $functionName ), '\\' ) ] );
 	}
 
@@ -251,7 +253,7 @@ trait SanitizationHelperTrait {
 	 *
 	 * @return bool
 	 */
-	final public function is_sanitizing_and_unslashing_function( $functionName ) {
+	final public function is_sanitizing_and_unslashing_function( string $functionName ): bool {
 		return isset( $this->get_sanitizing_and_unslashing_functions()[ ltrim( strtolower( $functionName ), '\\' ) ] );
 	}
 
@@ -268,7 +270,7 @@ trait SanitizationHelperTrait {
 	 *
 	 * @return bool Whether the token is only within a sanitization.
 	 */
-	final public function is_only_sanitized( File $phpcsFile, $stackPtr ) {
+	final public function is_only_sanitized( File $phpcsFile, int $stackPtr ): bool {
 		$tokens = $phpcsFile->getTokens();
 
 		// If it isn't being sanitized at all.
@@ -319,7 +321,7 @@ trait SanitizationHelperTrait {
 	 *
 	 * @return bool Whether the token is being sanitized.
 	 */
-	final public function is_sanitized( File $phpcsFile, $stackPtr, $unslash_callback = null ) {
+	final public function is_sanitized( File $phpcsFile, int $stackPtr, ?callable $unslash_callback = null ): bool {
 		$tokens          = $phpcsFile->getTokens();
 		$require_unslash = is_callable( $unslash_callback );
 

@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -68,7 +70,7 @@ final class GlobalVariablesOverrideSniff extends Sniff {
 	 *
 	 * @var array<string, true> Key is variable name, value irrelevant.
 	 */
-	protected $override_allowed = array(
+	protected array $override_allowed = array(
 		'content_width'     => true,
 		'wp_cockneyreplace' => true,
 	);
@@ -81,7 +83,7 @@ final class GlobalVariablesOverrideSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		$targets  = array(
 			\T_GLOBAL,
 			\T_VARIABLE,
@@ -102,10 +104,10 @@ final class GlobalVariablesOverrideSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		$token = $this->tokens[ $stackPtr ];
 
@@ -121,7 +123,7 @@ final class GlobalVariablesOverrideSniff extends Sniff {
 			}
 
 			// Otherwise ignore the tokens as they were only registered to enable skipping over test classes.
-			return;
+			return null;
 		}
 
 		/*
@@ -156,6 +158,8 @@ final class GlobalVariablesOverrideSniff extends Sniff {
 		) {
 			return $this->process_global_statement( $stackPtr, $in_function_scope );
 		}
+
+		return null;
 	}
 
 	/**
@@ -168,14 +172,14 @@ final class GlobalVariablesOverrideSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	protected function process_list_assignment( $stackPtr ) {
+	protected function process_list_assignment( int $stackPtr ): ?int {
 		$list_open_close = Lists::getOpenClose( $this->phpcsFile, $stackPtr );
 		if ( false === $list_open_close ) {
 			// Live coding or short array, not short list.
-			return;
+			return null;
 		}
 
 		$var_pointers = ListHelper::get_list_variables( $this->phpcsFile, $stackPtr );
@@ -198,7 +202,7 @@ final class GlobalVariablesOverrideSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function process_variable_assignment( $stackPtr, $in_list = false ) {
+	protected function process_variable_assignment( int $stackPtr, bool $in_list = false ): void {
 
 		$token    = $this->tokens[ $stackPtr ];
 		$var_name = substr( $token['content'], 1 ); // Strip the dollar sign.
@@ -303,7 +307,7 @@ final class GlobalVariablesOverrideSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function process_global_statement( $stackPtr, $in_function_scope ) {
+	protected function process_global_statement( int $stackPtr, bool $in_function_scope ): void {
 		/*
 		 * Collect the variables to watch for.
 		 */
@@ -421,7 +425,7 @@ final class GlobalVariablesOverrideSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function add_error( $stackPtr, $data = array() ) {
+	protected function add_error( int $stackPtr, array $data = array() ): void {
 		if ( empty( $data ) ) {
 			$data[] = $this->tokens[ $stackPtr ]['content'];
 		}

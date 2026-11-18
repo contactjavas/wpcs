@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -51,7 +53,7 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	public static $unittest_groups = array();
+	public static array $unittest_groups = array();
 
 	/**
 	 * Regex pattern with placeholder for the function names.
@@ -60,7 +62,7 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 *
 	 * @var string
 	 */
-	protected $regex_pattern = '`^(?:%s)$`i';
+	protected string $regex_pattern = '`^(?:%s)$`i';
 
 	/**
 	 * Cache for the group information.
@@ -69,7 +71,7 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	protected $groups = array();
+	protected array $groups = array();
 
 	/**
 	 * Cache for the excluded groups information.
@@ -78,7 +80,7 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	protected $excluded_groups = array();
+	protected array $excluded_groups = array();
 
 	/**
 	 * Regex containing the name of all functions handled by a sniff.
@@ -87,7 +89,7 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 *
 	 * @var string
 	 */
-	private $prelim_check_regex;
+	private ?string $prelim_check_regex = null;
 
 	/**
 	 * Groups of functions to restrict.
@@ -111,14 +113,14 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	abstract public function getGroups();
+	abstract public function getGroups(): array;
 
 	/**
 	 * Returns an array of tokens this test wants to listen for.
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		// Prepare the function group regular expressions only once.
 		if ( false === $this->setup_groups( 'functions' ) ) {
 			return array();
@@ -135,7 +137,7 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 * @param string $key The group array index key where the input for the regular expression can be found.
 	 * @return bool True if the groups were setup. False if not.
 	 */
-	protected function setup_groups( $key ) {
+	protected function setup_groups( string $key ): bool {
 		// Prepare the function group regular expressions only once.
 		$this->groups = $this->getGroups();
 
@@ -188,16 +190,16 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		$this->excluded_groups = RulesetPropertyHelper::merge_custom_array( $this->exclude );
 		if ( array_diff_key( $this->groups, $this->excluded_groups ) === array() ) {
 			// All groups have been excluded.
 			// Don't remove the listener as the exclude property can be changed inline.
-			return;
+			return null;
 		}
 
 		// Preliminary check. If the content of the T_STRING is not one of the functions we're
@@ -205,12 +207,14 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 		// this is a function call.
 		$content = ltrim( $this->tokens[ $stackPtr ]['content'], '\\' );
 		if ( preg_match( $this->prelim_check_regex, $content ) !== 1 ) {
-			return;
+			return null;
 		}
 
 		if ( true === $this->is_targetted_token( $stackPtr ) ) {
 			return $this->check_for_matches( $stackPtr );
 		}
+
+		return null;
 	}
 
 	/**
@@ -222,7 +226,7 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 *
 	 * @return bool
 	 */
-	public function is_targetted_token( $stackPtr ) {
+	public function is_targetted_token( int $stackPtr ): bool {
 		// Exclude function definitions, class methods, and namespaced calls.
 		if ( ContextHelper::has_object_operator_before( $this->phpcsFile, $stackPtr ) === true ) {
 			return false;
@@ -282,10 +286,10 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function check_for_matches( $stackPtr ) {
+	public function check_for_matches( int $stackPtr ): ?int {
 		$token_content = strtolower( ltrim( $this->tokens[ $stackPtr ]['content'], '\\' ) );
 		$skip_to       = array();
 
@@ -305,7 +309,7 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 		}
 
 		if ( empty( $skip_to ) || min( $skip_to ) === 0 ) {
-			return;
+			return null;
 		}
 
 		return min( $skip_to );
@@ -321,10 +325,10 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 * @param string $matched_content The token content (function name) which was matched
 	 *                                in lowercase.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_matched_token( $stackPtr, $group_name, $matched_content ) {
+	public function process_matched_token( int $stackPtr, string $group_name, string $matched_content ): ?int {
 
 		MessageHelper::addMessage(
 			$this->phpcsFile,
@@ -334,6 +338,8 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 			MessageHelper::stringToErrorcode( $group_name . '_' . $matched_content ),
 			array( $matched_content )
 		);
+
+		return null;
 	}
 
 	/**
@@ -348,7 +354,7 @@ abstract class AbstractFunctionRestrictionsSniff extends Sniff {
 	 * @param string $function_name Function name.
 	 * @return string Regex escaped function name.
 	 */
-	protected function prepare_name_for_regex( $function_name ) {
+	protected function prepare_name_for_regex( string $function_name ): string {
 		$function_name = str_replace( array( '.*', '*' ), '@@', $function_name ); // Replace wildcards with placeholder.
 		$function_name = preg_quote( $function_name, '`' );
 		$function_name = str_replace( '@@', '.*', $function_name ); // Replace placeholder with regex wildcard.

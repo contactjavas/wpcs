@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\CodeAnalysis;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -29,7 +31,7 @@ final class EscapedNotTranslatedSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	protected $group_name = 'escapednottranslated';
+	protected string $group_name = 'escapednottranslated';
 
 	/**
 	 * List of functions to examine.
@@ -43,7 +45,7 @@ final class EscapedNotTranslatedSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<string, string> Key is the name of the function being matched, value the alternative to use.
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'esc_html' => 'esc_html__',
 		'esc_attr' => 'esc_attr__',
 	);
@@ -59,11 +61,11 @@ final class EscapedNotTranslatedSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		if ( \count( $parameters ) === 1 ) {
-			return;
+			return null;
 		}
 
 		/*
@@ -85,5 +87,7 @@ final class EscapedNotTranslatedSniff extends AbstractFunctionParameterSniff {
 			'Found',
 			$data
 		);
+
+		return null;
 	}
 }

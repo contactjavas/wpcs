@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHP_CodeSniffer\Files\File;
@@ -39,7 +41,7 @@ final class ContextHelper {
 	 *
 	 * @var array<int|string, true> Key is token constant, value irrelevant.
 	 */
-	private static $safe_casts = array(
+	private static array $safe_casts = array(
 		\T_INT_CAST    => true,
 		\T_DOUBLE_CAST => true,
 		\T_BOOL_CAST   => true,
@@ -60,7 +62,7 @@ final class ContextHelper {
 	 *
 	 * @var array<string, true> Key is function name, value irrelevant.
 	 */
-	private static $typeTestFunctions = array(
+	private static array $typeTestFunctions = array(
 		'is_array'     => true,
 		'is_bool'      => true,
 		'is_callable'  => true,
@@ -87,7 +89,7 @@ final class ContextHelper {
 	 *
 	 * @var array<string, true> Key is function name, value irrelevant.
 	 */
-	private static $key_exists_functions = array(
+	private static array $key_exists_functions = array(
 		'array_key_exists' => true,
 		'key_exists'       => true, // Alias.
 	);
@@ -104,7 +106,7 @@ final class ContextHelper {
 	 *
 	 * @var array<string, bool|array>
 	 */
-	private static $arrayCompareFunctions = array(
+	private static array $arrayCompareFunctions = array(
 		'in_array'     => true,
 		'array_search' => true,
 		'array_keys'   => array(
@@ -130,7 +132,7 @@ final class ContextHelper {
 	 *
 	 * @return bool
 	 */
-	public static function has_object_operator_before( File $phpcsFile, $stackPtr ) {
+	public static function has_object_operator_before( File $phpcsFile, int $stackPtr ): bool {
 		$tokens = $phpcsFile->getTokens();
 		if ( isset( $tokens[ $stackPtr ] ) === false ) {
 			return false;
@@ -157,7 +159,7 @@ final class ContextHelper {
 	 *
 	 * @return bool
 	 */
-	public static function is_token_namespaced( File $phpcsFile, $stackPtr ) {
+	public static function is_token_namespaced( File $phpcsFile, int $stackPtr ): bool {
 		$tokens = $phpcsFile->getTokens();
 		if ( isset( $tokens[ $stackPtr ] ) === false ) {
 			return false;
@@ -252,7 +254,7 @@ final class ContextHelper {
 	 *
 	 * @return int|bool Stack pointer to the function call T_STRING token or false otherwise.
 	 */
-	public static function is_in_function_call( File $phpcsFile, $stackPtr, array $valid_functions, $global_function = true, $allow_nested = false ) {
+	public static function is_in_function_call( File $phpcsFile, int $stackPtr, array $valid_functions, bool $global_function = true, bool $allow_nested = false ): int|bool {
 		$valid_functions = array_change_key_case( $valid_functions, \CASE_LOWER );
 
 		$tokens = $phpcsFile->getTokens();
@@ -318,7 +320,7 @@ final class ContextHelper {
 	 *
 	 * @return bool Whether the token is being type tested.
 	 */
-	public static function is_in_type_test( File $phpcsFile, $stackPtr ) {
+	public static function is_in_type_test( File $phpcsFile, int $stackPtr ): bool {
 		/*
 		 * Casting the potential integer stack pointer return value to boolean here is fine.
 		 * The return can never be `0` as there will always be a PHP open tag before the
@@ -342,7 +344,7 @@ final class ContextHelper {
 	 *
 	 * @return bool Whether the token is inside an isset() or empty() statement.
 	 */
-	public static function is_in_isset_or_empty( File $phpcsFile, $stackPtr ) {
+	public static function is_in_isset_or_empty( File $phpcsFile, int $stackPtr ): bool {
 		if ( Parentheses::lastOwnerIn( $phpcsFile, $stackPtr, array( \T_ISSET, \T_EMPTY ) ) !== false ) {
 			return true;
 		}
@@ -371,7 +373,7 @@ final class ContextHelper {
 	 *
 	 * @return array<int|string, true>
 	 */
-	public static function get_safe_cast_tokens() {
+	public static function get_safe_cast_tokens(): array {
 		return self::$safe_casts;
 	}
 
@@ -388,7 +390,7 @@ final class ContextHelper {
 	 *
 	 * @return bool Whether the token being casted.
 	 */
-	public static function is_safe_casted( File $phpcsFile, $stackPtr ) {
+	public static function is_safe_casted( File $phpcsFile, int $stackPtr ): bool {
 		$tokens = $phpcsFile->getTokens();
 		if ( isset( $tokens[ $stackPtr ] ) === false ) {
 			return false;
@@ -413,7 +415,7 @@ final class ContextHelper {
 	 * @return bool Whether the token is (part of) a parameter to an
 	 *              array-value comparison function.
 	 */
-	public static function is_in_array_comparison( File $phpcsFile, $stackPtr ) {
+	public static function is_in_array_comparison( File $phpcsFile, int $stackPtr ): bool {
 		$function_ptr = self::is_in_function_call( $phpcsFile, $stackPtr, self::$arrayCompareFunctions, true, true );
 		if ( false === $function_ptr ) {
 			return false;

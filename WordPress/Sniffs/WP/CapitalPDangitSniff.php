@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -59,7 +61,7 @@ final class CapitalPDangitSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	private $comment_text_tokens = array(
+	private array $comment_text_tokens = array(
 		\T_DOC_COMMENT        => \T_DOC_COMMENT,
 		\T_DOC_COMMENT_STRING => \T_DOC_COMMENT_STRING,
 		\T_COMMENT            => \T_COMMENT,
@@ -72,7 +74,7 @@ final class CapitalPDangitSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	private $text_and_comment_tokens = array();
+	private array $text_and_comment_tokens = array();
 
 	/**
 	 * Returns an array of tokens this test wants to listen for.
@@ -81,7 +83,7 @@ final class CapitalPDangitSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		// Union the arrays - keeps the array keys.
 		$this->text_and_comment_tokens = ( Tokens::$textStringTokens + $this->comment_text_tokens );
 
@@ -104,10 +106,10 @@ final class CapitalPDangitSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 		/*
 		 * Ignore tokens within array and list definitions as well as within
 		 * array keys as this is a false positive in 80% of all cases.
@@ -137,7 +139,7 @@ final class CapitalPDangitSniff extends Sniff {
 			$ns_name = Namespaces::getDeclaredName( $this->phpcsFile, $stackPtr );
 			if ( empty( $ns_name ) ) {
 				// Namespace operator or declaration without name.
-				return;
+				return null;
 			}
 
 			$levels = explode( '\\', $ns_name );
@@ -156,7 +158,7 @@ final class CapitalPDangitSniff extends Sniff {
 				}
 			}
 
-			return;
+			return null;
 		}
 
 		/*
@@ -166,7 +168,7 @@ final class CapitalPDangitSniff extends Sniff {
 		if ( isset( Tokens::$ooScopeTokens[ $this->tokens[ $stackPtr ]['code'] ] ) ) {
 			$classname = ObjectDeclarations::getName( $this->phpcsFile, $stackPtr );
 			if ( empty( $classname ) ) {
-				return;
+				return null;
 			}
 
 			if ( preg_match_all( self::WP_CLASSNAME_REGEX, $classname, $matches, \PREG_PATTERN_ORDER ) > 0 ) {
@@ -182,7 +184,7 @@ final class CapitalPDangitSniff extends Sniff {
 				}
 			}
 
-			return;
+			return null;
 		}
 
 		/*
@@ -203,13 +205,13 @@ final class CapitalPDangitSniff extends Sniff {
 				&& '@link' === $this->tokens[ $comment_tag ]['content']
 			) {
 				// @link tag, so ignore.
-				return;
+				return null;
 			}
 		}
 
 		// Ignore constant declarations via define().
 		if ( ContextHelper::is_in_function_call( $this->phpcsFile, $stackPtr, array( 'define' => true ), true, true ) ) {
-			return;
+			return null;
 		}
 
 		// Ignore constant declarations using the const keyword.
@@ -222,7 +224,7 @@ final class CapitalPDangitSniff extends Sniff {
 		);
 		$maybe_const = $this->phpcsFile->findPrevious( $stop_points, ( $stackPtr - 1 ) );
 		if ( false !== $maybe_const && \T_CONST === $this->tokens[ $maybe_const ]['code'] ) {
-			return;
+			return null;
 		}
 
 		$content = $this->tokens[ $stackPtr ]['content'];
@@ -254,14 +256,14 @@ final class CapitalPDangitSniff extends Sniff {
 				}
 
 				if ( empty( $matches[1] ) ) {
-					return;
+					return null;
 				}
 			}
 
 			$misspelled = $this->retrieve_misspellings( $matches[1] );
 
 			if ( empty( $misspelled ) ) {
-				return;
+				return null;
 			}
 
 			$code = 'MisspelledInText';
@@ -289,6 +291,8 @@ final class CapitalPDangitSniff extends Sniff {
 				$this->phpcsFile->fixer->replaceToken( $stackPtr, $replacement );
 			}
 		}
+
+		return null;
 	}
 
 	/**
@@ -297,7 +301,7 @@ final class CapitalPDangitSniff extends Sniff {
 	 * @param array $match_stack Array of matched variations of the target word.
 	 * @return array Array containing only the misspelled variants.
 	 */
-	protected function retrieve_misspellings( $match_stack ) {
+	protected function retrieve_misspellings( array $match_stack ): array {
 		$misspelled = array();
 		foreach ( $match_stack as $match ) {
 			// Deal with multi-dimensional arrays when capturing offset.

@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHP_CodeSniffer\Files\File;
@@ -51,7 +53,7 @@ final class ListHelper {
 	 * @return array Array with the stack pointers to the variables or an empty
 	 *               array when not a (short) list.
 	 */
-	public static function get_list_variables( File $phpcsFile, $stackPtr ) {
+	public static function get_list_variables( File $phpcsFile, int $stackPtr ): array {
 		$tokens = $phpcsFile->getTokens();
 
 		// Is this one of the tokens this function handles ?

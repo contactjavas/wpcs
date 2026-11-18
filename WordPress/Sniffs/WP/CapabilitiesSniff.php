@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -46,7 +48,7 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	protected $group_name = 'caps_not_roles';
+	protected string $group_name = 'caps_not_roles';
 
 	/**
 	 * List of functions that accept roles and capabilities as an argument.
@@ -64,7 +66,7 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 	 *                           If the parameter name has been renamed since the release of PHP 8.0,
 	 *                           the parameter can be set as an array.
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'add_comments_page'         => array(
 			'position' => 3,
 			'name'     => 'capability',
@@ -154,7 +156,7 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<string, true> Key is role available in WP Core, value irrelevant.
 	 */
-	private $core_roles = array(
+	private array $core_roles = array(
 		'super_admin'   => true,
 		'administrator' => true,
 		'editor'        => true,
@@ -179,7 +181,7 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<string, true> All capabilities available in core.
 	 */
-	private $core_capabilities = array(
+	private array $core_capabilities = array(
 		'activate_plugin'             => true,
 		'activate_plugins'            => true,
 		'add_comment_meta'            => true,
@@ -330,7 +332,7 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<string, string> All deprecated capabilities in core.
 	 */
-	private $deprecated_capabilities = array(
+	private array $deprecated_capabilities = array(
 		'level_10' => '3.0.0',
 		'level_9'  => '3.0.0',
 		'level_8'  => '3.0.0',
@@ -355,9 +357,9 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		$function_details = $this->target_functions[ $matched_content ];
 
 		$parameter = PassedParameters::getParameterFromStack(
@@ -367,7 +369,7 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 		);
 
 		if ( false === $parameter ) {
-			return;
+			return null;
 		}
 
 		// If the parameter is anything other than T_CONSTANT_ENCAPSED_STRING throw a warning and bow out.
@@ -392,7 +394,7 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 					),
 					3 // Message severity set to below default.
 				);
-				return;
+				return null;
 			}
 
 			$first_non_empty = $i;
@@ -400,7 +402,7 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 
 		if ( null === $first_non_empty ) {
 			// Parse error. Bow out.
-			return;
+			return null;
 		}
 
 		/*
@@ -410,7 +412,7 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 		$matched_parameter = TextStrings::stripQuotes( $this->tokens[ $first_non_empty ]['content'] );
 
 		if ( isset( $this->core_capabilities[ $matched_parameter ] ) ) {
-			return;
+			return null;
 		}
 
 		if ( empty( $matched_parameter ) ) {
@@ -423,13 +425,13 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 					$matched_content,
 				)
 			);
-			return;
+			return null;
 		}
 
 		// Check if additional capabilities were registered via the ruleset and if the found capability matches any of those.
 		$custom_capabilities = RulesetPropertyHelper::merge_custom_array( $this->custom_capabilities, array() );
 		if ( isset( $custom_capabilities[ $matched_parameter ] ) ) {
-			return;
+			return null;
 		}
 
 		if ( isset( $this->deprecated_capabilities[ $matched_parameter ] ) ) {
@@ -450,7 +452,7 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 				'Deprecated',
 				$data
 			);
-			return;
+			return null;
 		}
 
 		if ( isset( $this->core_roles[ $matched_parameter ] ) ) {
@@ -463,7 +465,7 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 					$matched_content,
 				)
 			);
-			return;
+			return null;
 		}
 
 		$this->phpcsFile->addWarning(
@@ -475,5 +477,7 @@ final class CapabilitiesSniff extends AbstractFunctionParameterSniff {
 				$matched_content,
 			)
 		);
+
+		return null;
 	}
 }

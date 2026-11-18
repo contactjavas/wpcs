@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHPCSUtils\Utils\Numbers;
@@ -41,7 +43,7 @@ final class PostsPerPageSniff extends AbstractArrayAssignmentRestrictionsSniff {
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		return array(
 			'posts_per_page' => array(
 				'type'    => 'warning',
@@ -64,7 +66,7 @@ final class PostsPerPageSniff extends AbstractArrayAssignmentRestrictionsSniff {
 	 *
 	 * @return bool FALSE if no match, TRUE if matches.
 	 */
-	public function callback( $key, $val, $line, $group ) {
+	public function callback( string $key, mixed $val, int $line, array $group ): bool {
 		$stripped_val = TextStrings::stripQuotes( $val );
 
 		if ( '' === $stripped_val ) {

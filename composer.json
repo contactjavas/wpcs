@@ -11,17 +11,21 @@
 	],
 	"authors": [
 		{
-			"name": "Contributors",
+			"name": "Bagus",
+			"email": "contactjavas@gmail.com"
+		},
+		{
+			"name": "WordPressCS Contributors",
 			"homepage": "https://github.com/WordPress/WordPress-Coding-Standards/graphs/contributors"
 		}
 	],
 	"support": {
-		"issues": "https://github.com/WordPress/WordPress-Coding-Standards/issues",
+		"issues": "https://github.com/contactjavas/wpcs/issues",
 		"wiki": "https://github.com/WordPress/WordPress-Coding-Standards/wiki",
-		"source": "https://github.com/WordPress/WordPress-Coding-Standards"
+		"source": "https://github.com/contactjavas/wpcs"
 	},
 	"require": {
-		"php": ">=8.2",
+		"php": "^8.4",
 		"ext-filter": "*",
 		"ext-libxml": "*",
 		"ext-tokenizer": "*",
@@ -62,6 +66,9 @@
 		"run-tests": [
 			"@php ./vendor/phpunit/phpunit/phpunit --no-coverage"
 		],
+		"test": [
+			"@run-tests"
+		],
 		"coverage": [
 			"@php ./vendor/phpunit/phpunit/phpunit"
 		],
@@ -83,6 +90,7 @@
 		"check-cs": "Run the PHPCS script against the entire codebase.",
 		"fix-cs": "Run the PHPCBF script to fix all the autofixable violations on the codebase.",
 		"run-tests": "Run all the unit tests for the WordPress Coding Standards sniffs without code coverage.",
+		"test": "Alias of run-tests.",
 		"coverage": "Run all the unit tests for the WordPress Coding Standards sniffs with code coverage.",
 		"check-complete": "Check if all the sniffs have tests.",
 		"check-complete-strict": "Check if all the sniffs have unit tests and XML documentation.",

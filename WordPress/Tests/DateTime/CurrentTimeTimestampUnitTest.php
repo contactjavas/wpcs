@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\DateTime;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
@@ -25,7 +27,7 @@ final class CurrentTimeTimestampUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected errors.
 	 */
-	public function getErrorList() {
+	public function getErrorList(): array {
 		return array(
 			9  => 1,
 			11 => 1,
@@ -40,7 +42,7 @@ final class CurrentTimeTimestampUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected warnings.
 	 */
-	public function getWarningList() {
+	public function getWarningList(): array {
 		return array(
 			22 => 1,
 			23 => 1,

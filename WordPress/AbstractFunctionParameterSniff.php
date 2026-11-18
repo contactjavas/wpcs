@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -27,7 +29,7 @@ abstract class AbstractFunctionParameterSniff extends AbstractFunctionRestrictio
 	 *
 	 * @var string
 	 */
-	protected $group_name = 'restricted_parameters';
+	protected string $group_name = 'restricted_parameters';
 
 	/**
 	 * Functions this sniff is looking for. Should be defined in the child class.
@@ -37,14 +39,14 @@ abstract class AbstractFunctionParameterSniff extends AbstractFunctionRestrictio
 	 *                           Other than that, the array can have arbitrary content
 	 *                           depending on your needs.
 	 */
-	protected $target_functions = array();
+	protected array $target_functions = array();
 
 	/**
 	 * Groups of functions to restrict.
 	 *
 	 * @return array<string, array<string, array<string>>>
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		if ( empty( $this->target_functions ) ) {
 			return array();
 		}
@@ -64,10 +66,10 @@ abstract class AbstractFunctionParameterSniff extends AbstractFunctionRestrictio
 	 * @param string $matched_content The token content (function name) which was matched
 	 *                                in lowercase.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_matched_token( $stackPtr, $group_name, $matched_content ) {
+	public function process_matched_token( int $stackPtr, string $group_name, string $matched_content ): ?int {
 
 		$parameters = PassedParameters::getParameters( $this->phpcsFile, $stackPtr );
 
@@ -88,6 +90,8 @@ abstract class AbstractFunctionParameterSniff extends AbstractFunctionRestrictio
 		} else {
 			return $this->process_parameters( $stackPtr, $group_name, $matched_content, $parameters );
 		}
+
+		return null;
 	}
 
 	/**
@@ -99,7 +103,7 @@ abstract class AbstractFunctionParameterSniff extends AbstractFunctionRestrictio
 	 *
 	 * @return bool
 	 */
-	public function is_targetted_token( $stackPtr ) {
+	public function is_targetted_token( int $stackPtr ): bool {
 		if ( ! parent::is_targetted_token( $stackPtr ) ) {
 			return false;
 		}
@@ -130,10 +134,10 @@ abstract class AbstractFunctionParameterSniff extends AbstractFunctionRestrictio
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	abstract public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters );
+	abstract public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int;
 
 	/**
 	 * Process the function if no parameters were found.
@@ -146,10 +150,12 @@ abstract class AbstractFunctionParameterSniff extends AbstractFunctionRestrictio
 	 * @param string $matched_content The token content (function name) which was matched
 	 *                                in lowercase.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_no_parameters( $stackPtr, $group_name, $matched_content ) {}
+	public function process_no_parameters( int $stackPtr, string $group_name, string $matched_content ): ?int {
+		return null;
+	}
 
 	/**
 	 * Process the function if it is used as a first class callable.
@@ -162,8 +168,10 @@ abstract class AbstractFunctionParameterSniff extends AbstractFunctionRestrictio
 	 * @param string $matched_content The token content (function name) which was matched
 	 *                                in lowercase.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_first_class_callable( $stackPtr, $group_name, $matched_content ) {}
+	public function process_first_class_callable( int $stackPtr, string $group_name, string $matched_content ): ?int {
+		return null;
+	}
 }

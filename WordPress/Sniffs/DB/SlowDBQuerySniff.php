@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\DB;
 
 use WordPressCS\WordPress\AbstractArrayAssignmentRestrictionsSniff;
@@ -27,7 +29,7 @@ final class SlowDBQuerySniff extends AbstractArrayAssignmentRestrictionsSniff {
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		return array(
 			'slow_db_query' => array(
 				'type'    => 'warning',
@@ -52,7 +54,7 @@ final class SlowDBQuerySniff extends AbstractArrayAssignmentRestrictionsSniff {
 	 *
 	 * @return bool Always returns TRUE as the value is irrelevant.
 	 */
-	public function callback( $key, $val, $line, $group ) {
+	public function callback( string $key, mixed $val, int $line, array $group ): bool {
 		return true;
 	}
 }

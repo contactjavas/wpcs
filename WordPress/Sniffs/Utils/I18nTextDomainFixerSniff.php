@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\Utils;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -68,7 +70,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	protected $group_name = 'i18nfixer';
+	protected string $group_name = 'i18nfixer';
 
 	/**
 	 * The WP Internationalization related functions to target for the replacements.
@@ -81,7 +83,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 * @var array<string, array<string, int|string>> Function name as key, array with target
 	 *                                               parameter and name as value.
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'load_textdomain' => array(
 			'position' => 1,
 			'name'     => 'domain',
@@ -236,7 +238,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var bool
 	 */
-	private $is_valid = false;
+	private bool $is_valid = false;
 
 	/**
 	 * The new text domain as validated.
@@ -245,7 +247,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	private $validated_textdomain = '';
+	private string $validated_textdomain = '';
 
 	/**
 	 * Whether the plugin/theme header has been seen and fixed yet.
@@ -254,7 +256,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var bool
 	 */
-	private $header_found = false;
+	private bool $header_found = false;
 
 	/**
 	 * Possible headers for a theme.
@@ -266,7 +268,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 * @var array<string, bool> Array key is the header name, the value indicated whether it is a
 	 *                          required (true) or optional (false) header.
 	 */
-	private $theme_headers = array(
+	private array $theme_headers = array(
 		'Theme Name'        => true,
 		'Theme URI'         => false,
 		'Author'            => true,
@@ -293,7 +295,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 * @var array<string, bool> Array key is the header name, the value indicated whether it is a
 	 *                          required (true) or optional (false) header.
 	 */
-	private $plugin_headers = array(
+	private array $plugin_headers = array(
 		'Plugin Name'       => true,
 		'Plugin URI'        => false,
 		'Description'       => false,
@@ -317,7 +319,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	private $header_regex_template = '`^(?:\s*(?:(?:\*|//)\s*)?)?(%s)\s*:\s*([^\r\n]+)`';
+	private string $header_regex_template = '`^(?:\s*(?:(?:\*|//)\s*)?)?(%s)\s*:\s*([^\r\n]+)`';
 
 	/**
 	 * Regex to match theme headers.
@@ -328,7 +330,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	private $theme_header_regex;
+	private ?string $theme_header_regex = null;
 
 	/**
 	 * Regex to match plugin headers.
@@ -339,7 +341,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	private $plugin_header_regex;
+	private ?string $plugin_header_regex = null;
 
 	/**
 	 * The --tab-width CLI value that is being used.
@@ -348,7 +350,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var int
 	 */
-	private $tab_width = null;
+	private ?int $tab_width = null;
 
 	/**
 	 * Returns an array of tokens this test wants to listen for.
@@ -357,7 +359,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		$headers                  = array_map(
 			'preg_quote',
 			array_keys( $this->theme_headers ),
@@ -387,10 +389,10 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 		// Check if the old/new properties are correctly set. If not, bow out.
 		if ( ! is_string( $this->new_text_domain )
 			|| '' === $this->new_text_domain
@@ -457,6 +459,8 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 			// Examine a T_STRING token in a PHP file as a function call.
 			return parent::process_token( $stackPtr );
 		}
+
+		return null;
 	}
 
 
@@ -471,9 +475,9 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		$target_param_specs = $this->target_functions[ $matched_content ];
 		$found_param        = PassedParameters::getParameterFromStack( $parameters, $target_param_specs['position'], $target_param_specs['name'] );
 
@@ -541,7 +545,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 				$this->phpcsFile->addWarning( $error_msg, $stackPtr, $error_code );
 			}
 
-			return;
+			return null;
 		}
 
 		// Target parameter found. Let's examine it.
@@ -556,12 +560,12 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 
 			if ( \T_CONSTANT_ENCAPSED_STRING !== $this->tokens[ $i ]['code'] ) {
 				// Unexpected token found, not our concern. This is handled by the I18n sniff.
-				return;
+				return null;
 			}
 
 			if ( isset( $domain_token ) ) {
 				// More than one T_CONSTANT_ENCAPSED_STRING found, not our concern. This is handled by the I18n sniff.
-				return;
+				return null;
 			}
 
 			$domain_token = $i;
@@ -572,7 +576,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 
 		if ( ! \in_array( $old_domain, $this->old_text_domain, true ) ) {
 			// Not a text domain targeted for replacement, ignore.
-			return;
+			return null;
 		}
 
 		$fix = $this->phpcsFile->addFixableError(
@@ -586,6 +590,8 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 			$replacement = str_replace( $old_domain, $this->new_text_domain, $this->tokens[ $domain_token ]['content'] );
 			$this->phpcsFile->fixer->replaceToken( $domain_token, $replacement );
 		}
+
+		return null;
 	}
 
 	/**
@@ -598,15 +604,15 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 * @param string $matched_content The token content (function name) which was matched
 	 *                                in lowercase.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_no_parameters( $stackPtr, $group_name, $matched_content ) {
+	public function process_no_parameters( int $stackPtr, string $group_name, string $matched_content ): ?int {
 		$target_param = $this->target_functions[ $matched_content ];
 
 		if ( 1 !== $target_param['position'] ) {
 			// Only process the no param case as fixable if the text domain is expected to be the first parameter.
 			$this->phpcsFile->addWarning( 'Missing $domain arg and preceding argument(s)', $stackPtr, 'MissingArgs' );
-			return;
+			return null;
 		}
 
 		$opener = $this->phpcsFile->findNext( Tokens::$emptyTokens, ( $stackPtr + 1 ), null, true );
@@ -614,7 +620,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 			|| isset( $this->tokens[ $opener ]['parenthesis_closer'] ) === false
 		) {
 			// Parse error or live coding.
-			return;
+			return null;
 		}
 
 		$fix = $this->phpcsFile->addFixableError( 'Missing $domain arg', $stackPtr, 'MissingArgDomain' );
@@ -654,6 +660,8 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 				$this->phpcsFile->fixer->addContentBefore( $closer, $replacement );
 			}
 		}
+
+		return null;
 	}
 
 
@@ -664,12 +672,12 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_comments( $stackPtr ) {
+	public function process_comments( int $stackPtr ): ?int {
 		if ( true === $this->header_found && ! defined( 'PHP_CODESNIFFER_IN_TESTS' ) ) {
-			return;
+			return null;
 		}
 
 		$regex   = $this->plugin_header_regex;
@@ -678,7 +686,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 
 		$file = FilePath::getName( $this->phpcsFile );
 		if ( 'STDIN' === $file ) {
-			return;
+			return null;
 		}
 
 		$file_name = basename( $file );
@@ -729,7 +737,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 
 		} else {
 			if ( ! isset( $this->tokens[ $stackPtr ]['comment_closer'] ) ) {
-				return;
+				return null;
 			}
 
 			$closer  = $this->tokens[ $stackPtr ]['comment_closer'];
@@ -840,7 +848,7 @@ final class I18nTextDomainFixerSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return array Adjusted $comment_details array
 	 */
-	protected function examine_comment_line( $stackPtr, $regex, $headers, $comment_details ) {
+	protected function examine_comment_line( int $stackPtr, string $regex, array $headers, array $comment_details ): array {
 		if ( preg_match( $regex, $this->tokens[ $stackPtr ]['content'], $matches ) === 1 ) {
 			++$comment_details['headers_found'];
 

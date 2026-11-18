@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHP_CodeSniffer\Files\File;
@@ -78,7 +80,7 @@ trait IsUnitTestTrait {
 	 *
 	 * @var array<string, true> Key is class name, value irrelevant.
 	 */
-	private $known_test_classes = array(
+	private array $known_test_classes = array(
 		// Base test cases.
 		'WP_UnitTestCase'                            => true,
 		'WP_UnitTestCase_Base'                       => true,
@@ -108,9 +110,9 @@ trait IsUnitTestTrait {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var string[]
+	 * @var mixed Raw ruleset value (PHPCS may assign string|bool|null|array).
 	 */
-	private $added_custom_test_classes = array();
+	private mixed $added_custom_test_classes = array();
 
 	/**
 	 * Combined list of WP/PHPUnit native and custom test classes.
@@ -119,7 +121,7 @@ trait IsUnitTestTrait {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $all_test_classes = array();
+	private array $all_test_classes = array();
 
 	/**
 	 * Retrieve a list of all registered test classes, both WP/PHPUnit native as well as custom.
@@ -128,7 +130,7 @@ trait IsUnitTestTrait {
 	 *
 	 * @return array<string, bool>
 	 */
-	final protected function get_all_test_classes() {
+	final protected function get_all_test_classes(): array {
 		if ( array() === $this->all_test_classes
 			|| $this->custom_test_classes !== $this->added_custom_test_classes
 		) {
@@ -139,7 +141,7 @@ trait IsUnitTestTrait {
 			$custom_test_classes = array();
 			if ( ! empty( $this->custom_test_classes ) ) {
 				foreach ( $this->custom_test_classes as $v ) {
-					$custom_test_classes[] = ltrim( $v, '\\' );
+					$custom_test_classes[] = ltrim( (string) $v, '\\' );
 				}
 			}
 
@@ -180,7 +182,7 @@ trait IsUnitTestTrait {
 	 *
 	 * @return bool True if the class is a unit test class, false otherwise.
 	 */
-	final protected function is_test_class( File $phpcsFile, $stackPtr ) {
+	final protected function is_test_class( File $phpcsFile, int $stackPtr ): bool {
 
 		$tokens = $phpcsFile->getTokens();
 

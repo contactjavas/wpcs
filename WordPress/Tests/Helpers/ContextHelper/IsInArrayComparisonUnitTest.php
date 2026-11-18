@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\ContextHelper;
 
 use PHPCSUtils\TestUtils\UtilityMethodTestCase;
@@ -34,7 +36,7 @@ final class IsInArrayComparisonUnitTest extends UtilityMethodTestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataIsInArrayComparison' )]
-	public function testIsInArrayComparison( $testMarker, $expectedResult ) {
+	public function testIsInArrayComparison( string $testMarker, bool $expectedResult ): void {
 		$stackPtr = $this->getTargetToken( $testMarker, \T_VARIABLE );
 		$result   = ContextHelper::is_in_array_comparison( self::$phpcsFile, $stackPtr );
 
@@ -49,7 +51,7 @@ final class IsInArrayComparisonUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return array<string, array<string, bool|string>>
 	 */
-	public static function dataIsInArrayComparison() {
+	public static function dataIsInArrayComparison(): array {
 		return array(
 			// Cases that should return false.
 			'bare_variable' => array(

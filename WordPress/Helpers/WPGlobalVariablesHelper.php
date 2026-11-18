@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 /**
@@ -31,7 +33,7 @@ final class WPGlobalVariablesHelper {
 	 *
 	 * @var array<string, bool> The key is the name of a WP global variable, the value is irrelevant.
 	 */
-	private static $wp_globals = array(
+	private static array $wp_globals = array(
 		'_links_add_base'                  => true,
 		'_links_add_target'                => true,
 		'_menu_item_sort_prop'             => true,
@@ -285,7 +287,7 @@ final class WPGlobalVariablesHelper {
 	 *
 	 * @return array<string, bool> Array with the variables names as keys. The value is irrelevant.
 	 */
-	public static function get_names() {
+	public static function get_names(): array {
 		return self::$wp_globals;
 	}
 
@@ -302,7 +304,7 @@ final class WPGlobalVariablesHelper {
 	 *
 	 * @return bool
 	 */
-	public static function is_wp_global( $name ) {
+	public static function is_wp_global( string $name ): bool {
 		if ( strpos( $name, '$' ) === 0 ) {
 			$name = substr( $name, 1 );
 		}

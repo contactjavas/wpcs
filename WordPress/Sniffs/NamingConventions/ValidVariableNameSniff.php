@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\NamingConventions;
 
 use PHP_CodeSniffer\Files\File;
@@ -40,7 +42,7 @@ final class ValidVariableNameSniff extends PHPCS_AbstractVariableSniff {
 	 *
 	 * @var array
 	 */
-	protected $wordpress_mixed_case_vars = array(
+	protected array $wordpress_mixed_case_vars = array(
 		'EZSQL_ERROR'       => true,
 		'GETID3_ERRORARRAY' => true,
 		'is_IE'             => true,
@@ -63,7 +65,7 @@ final class ValidVariableNameSniff extends PHPCS_AbstractVariableSniff {
 	 *
 	 * @var array
 	 */
-	protected $allowed_mixed_case_member_var_names = array(
+	protected array $allowed_mixed_case_member_var_names = array(
 		'cat_ID'            => true,
 		'comment_ID'        => true,
 		'comment_author_IP' => true,
@@ -93,7 +95,7 @@ final class ValidVariableNameSniff extends PHPCS_AbstractVariableSniff {
 	 *
 	 * @var array
 	 */
-	protected $addedCustomProperties = array(
+	protected array $addedCustomProperties = array(
 		'properties' => null,
 	);
 
@@ -106,7 +108,7 @@ final class ValidVariableNameSniff extends PHPCS_AbstractVariableSniff {
 	 *
 	 * @return void
 	 */
-	protected function processVariable( File $phpcsFile, $stackPtr ) {
+	protected function processVariable( File $phpcsFile, int $stackPtr ): void {
 		$tokens = $phpcsFile->getTokens();
 
 		// If it's a php reserved var, then its ok.
@@ -188,7 +190,7 @@ final class ValidVariableNameSniff extends PHPCS_AbstractVariableSniff {
 	 *
 	 * @return void
 	 */
-	protected function processMemberVar( File $phpcsFile, $stackPtr ) {
+	protected function processMemberVar( File $phpcsFile, int $stackPtr ): void {
 		// Make sure this is actually an OO property and not an OO method parameter or illegal property declaration.
 		if ( Scopes::isOOProperty( $phpcsFile, $stackPtr ) === false ) {
 			return;
@@ -224,7 +226,7 @@ final class ValidVariableNameSniff extends PHPCS_AbstractVariableSniff {
 	 *
 	 * @return void
 	 */
-	protected function processVariableInString( File $phpcsFile, $stackPtr ) {
+	protected function processVariableInString( File $phpcsFile, int $stackPtr ): void {
 		$tokens = $phpcsFile->getTokens();
 
 		// There will always be embeds if the processVariableInString() was called.
@@ -273,7 +275,7 @@ final class ValidVariableNameSniff extends PHPCS_AbstractVariableSniff {
 	 *
 	 * @return void
 	 */
-	protected function merge_allow_lists() {
+	protected function merge_allow_lists(): void {
 		if ( $this->allowed_custom_properties !== $this->addedCustomProperties['properties'] ) {
 			// Fix property potentially passed as comma-delimited string.
 			$customProperties = RulesetPropertyHelper::merge_custom_array( $this->allowed_custom_properties, array(), false );

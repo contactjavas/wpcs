@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\NamingConventions;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
@@ -29,7 +31,7 @@ final class PrefixAllGlobalsUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected errors.
 	 */
-	public function getErrorList( $testFile = 'PrefixAllGlobalsUnitTest.1.inc' ) {
+	public function getErrorList( string $testFile = 'PrefixAllGlobalsUnitTest.1.inc' ): array {
 
 		switch ( $testFile ) {
 			case 'PrefixAllGlobalsUnitTest.1.inc':
@@ -128,7 +130,7 @@ final class PrefixAllGlobalsUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected warnings.
 	 */
-	public function getWarningList( $testFile = 'PrefixAllGlobalsUnitTest.1.inc' ) {
+	public function getWarningList( string $testFile = 'PrefixAllGlobalsUnitTest.1.inc' ): array {
 
 		switch ( $testFile ) {
 			case 'PrefixAllGlobalsUnitTest.1.inc':

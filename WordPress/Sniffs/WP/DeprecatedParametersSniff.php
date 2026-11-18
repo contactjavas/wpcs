@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHPCSUtils\Utils\MessageHelper;
@@ -43,7 +45,7 @@ final class DeprecatedParametersSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	protected $group_name = 'wp_deprecated_parameters';
+	protected string $group_name = 'wp_deprecated_parameters';
 
 	/**
 	 * Array of function, argument, and default value for deprecated argument.
@@ -71,7 +73,7 @@ final class DeprecatedParametersSniff extends AbstractFunctionParameterSniff {
 	 *         )
 	 *    );
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'_future_post_hook' => array(
 			1 => array(
 				'name'    => 'deprecated',
@@ -466,9 +468,9 @@ final class DeprecatedParametersSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 
 		$this->set_minimum_wp_version();
 
@@ -527,5 +529,7 @@ final class DeprecatedParametersSniff extends AbstractFunctionParameterSniff {
 
 			MessageHelper::addMessage( $this->phpcsFile, $message, $stackPtr, $is_error, $code, $data, 0 );
 		}
+
+		return null;
 	}
 }

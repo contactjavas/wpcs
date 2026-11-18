@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\ContextHelper;
 
 use PHPCSUtils\TestUtils\UtilityMethodTestCase;
@@ -34,7 +36,7 @@ final class IsInTypeTestUnitTest extends UtilityMethodTestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataIsInTypeTest' )]
-	public function testIsInTypeTest( $testMarker, $expectedResult ) {
+	public function testIsInTypeTest( string $testMarker, bool $expectedResult ): void {
 		$stackPtr = $this->getTargetToken( $testMarker, \T_VARIABLE );
 		$result   = ContextHelper::is_in_type_test( self::$phpcsFile, $stackPtr );
 
@@ -49,7 +51,7 @@ final class IsInTypeTestUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return array<string, array<string, bool|string>>
 	 */
-	public static function dataIsInTypeTest() {
+	public static function dataIsInTypeTest(): array {
 		return array(
 			// Cases that should return false.
 			'bare_variable' => array(

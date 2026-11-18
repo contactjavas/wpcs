@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\DB;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -132,7 +134,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	protected $target_methods = array(
+	protected array $target_methods = array(
 		'prepare' => true,
 	);
 
@@ -143,7 +145,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 	 *
 	 * @var int
 	 */
-	protected $methodPtr;
+	protected ?int $methodPtr = null;
 
 	/**
 	 * Simple regex snippet to recognize and remember quotes.
@@ -152,7 +154,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 	 *
 	 * @var string
 	 */
-	private $regex_quote = '["\']';
+	private string $regex_quote = '["\']';
 
 	/**
 	 * Returns an array of tokens this test wants to listen for.
@@ -161,7 +163,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		return Collections::nameTokens() + array( \T_VARIABLE => \T_VARIABLE );
 	}
 
@@ -172,24 +174,24 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		$this->set_minimum_wp_version();
 
 		if ( ! $this->is_wpdb_method_call( $this->phpcsFile, $stackPtr, $this->target_methods ) ) {
-			return;
+			return null;
 		}
 
 		$parameters = PassedParameters::getParameters( $this->phpcsFile, $this->methodPtr );
 		if ( empty( $parameters ) ) {
-			return;
+			return null;
 		}
 
 		$query = PassedParameters::getParameterFromStack( $parameters, 1, 'query' );
 		if ( false === $query ) {
-			return;
+			return null;
 		}
 
 		$text_string_tokens_found = false;
@@ -535,7 +537,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 
 		if ( false === $text_string_tokens_found ) {
 			// Query string passed in as a variable or function call, nothing to examine.
-			return;
+			return null;
 		}
 
 		if ( 0 === $total_placeholders ) {
@@ -561,7 +563,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 				);
 			}
 
-			return;
+			return null;
 		}
 
 		if ( 1 === $total_parameters ) {
@@ -571,7 +573,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 				'MissingReplacements',
 				array( $total_placeholders )
 			);
-			return;
+			return null;
 		}
 
 		$replacements = $parameters;
@@ -604,7 +606,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 			&& $valid_in_clauses['uses_in'] === $valid_in_clauses['implode_fill']
 			&& 1 === $total_replacements
 		) {
-			return;
+			return null;
 		}
 
 		/*
@@ -618,6 +620,8 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 				array( $total_replacements, $total_placeholders )
 			);
 		}
+
+		return null;
 	}
 
 	/**
@@ -635,7 +639,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 	 *
 	 * @return string
 	 */
-	protected function get_regex_quote_snippet( $stripped_content, $original_content ) {
+	protected function get_regex_quote_snippet( string $stripped_content, string $original_content ): string {
 		$regex_quote = $this->regex_quote;
 
 		if ( $original_content !== $stripped_content ) {
@@ -664,7 +668,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 	 *
 	 * @return int The number of times the pattern was found in the replacements.
 	 */
-	protected function analyse_sprintf( $sprintf_params ) {
+	protected function analyse_sprintf( array $sprintf_params ): int {
 		$found = 0;
 
 		unset( $sprintf_params[1] ); // Remove the positionally passed $format param.
@@ -709,7 +713,7 @@ final class PreparedSQLPlaceholdersSniff extends Sniff {
 	 *
 	 * @return bool True if the pattern is found, false otherwise.
 	 */
-	protected function analyse_implode( $implode_token ) {
+	protected function analyse_implode( int $implode_token ): bool {
 		$implode_params = PassedParameters::getParameters( $this->phpcsFile, $implode_token );
 		if ( empty( $implode_params ) || \count( $implode_params ) !== 2 ) {
 			return false;

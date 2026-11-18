@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\CodeAnalysis;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -39,7 +41,7 @@ final class AssignmentInTernaryConditionSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	protected $assignment_tokens = array();
+	protected array $assignment_tokens = array();
 
 	/**
 	 * The tokens that indicate the start of a condition.
@@ -48,7 +50,7 @@ final class AssignmentInTernaryConditionSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	protected $condition_start_tokens = array();
+	protected array $condition_start_tokens = array();
 
 	/**
 	 * Registers the tokens that this sniff wants to listen for.
@@ -57,7 +59,7 @@ final class AssignmentInTernaryConditionSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		$this->assignment_tokens = Tokens::$assignmentTokens;
 		unset( $this->assignment_tokens[ \T_DOUBLE_ARROW ] );
 
@@ -80,9 +82,9 @@ final class AssignmentInTernaryConditionSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		$token = $this->tokens[ $stackPtr ];
 
@@ -90,7 +92,7 @@ final class AssignmentInTernaryConditionSniff extends Sniff {
 		$prev = $this->phpcsFile->findPrevious( Tokens::$emptyTokens, ( $stackPtr - 1 ), null, true );
 		if ( \T_CLOSE_PARENTHESIS === $this->tokens[ $prev ]['code'] ) {
 			if ( ! isset( $this->tokens[ $prev ]['parenthesis_opener'] ) ) {
-				return;
+				return null;
 			}
 
 			$opener = $this->tokens[ $prev ]['parenthesis_opener'];
@@ -102,13 +104,13 @@ final class AssignmentInTernaryConditionSniff extends Sniff {
 			$next_statement_closer = BCFile::findEndOfStatement( $this->phpcsFile, $stackPtr, array( \T_COLON, \T_CLOSE_PARENTHESIS, \T_CLOSE_SQUARE_BRACKET ) );
 			if ( false !== $next_statement_closer && $next_statement_closer < $closer ) {
 				// Parentheses are unrelated to the ternary.
-				return;
+				return null;
 			}
 
 			$prev_statement_closer = BCFile::findStartOfStatement( $this->phpcsFile, $stackPtr, array( \T_COLON, \T_OPEN_PARENTHESIS, \T_OPEN_SQUARE_BRACKET ) );
 			if ( false !== $prev_statement_closer && $opener < $prev_statement_closer ) {
 				// Parentheses are unrelated to the ternary.
-				return;
+				return null;
 			}
 
 			if ( $closer > $stackPtr ) {
@@ -116,7 +118,7 @@ final class AssignmentInTernaryConditionSniff extends Sniff {
 			}
 		} else {
 			// No parenthesis found, can't determine where the conditional part of the ternary starts.
-			return;
+			return null;
 		}
 
 		$startPos = $opener;
@@ -124,7 +126,7 @@ final class AssignmentInTernaryConditionSniff extends Sniff {
 		do {
 			$hasAssignment = $this->phpcsFile->findNext( $this->assignment_tokens, ( $startPos + 1 ), $closer );
 			if ( false === $hasAssignment ) {
-				return;
+				return null;
 			}
 
 			// Examine whether the left side is a variable.
@@ -169,5 +171,7 @@ final class AssignmentInTernaryConditionSniff extends Sniff {
 			$startPos = $hasAssignment;
 
 		} while ( $startPos < $closer );
+
+		return null;
 	}
 }

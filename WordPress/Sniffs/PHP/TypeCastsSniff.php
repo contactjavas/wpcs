@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\PHP;
 
 use WordPressCS\WordPress\Sniff;
@@ -32,7 +34,7 @@ final class TypeCastsSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		return array(
 			\T_DOUBLE_CAST,
 			\T_UNSET_CAST,
@@ -45,9 +47,9 @@ final class TypeCastsSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		$token_code  = $this->tokens[ $stackPtr ]['code'];
 		$typecast    = str_replace( ' ', '', $this->tokens[ $stackPtr ]['content'] );
@@ -86,5 +88,7 @@ final class TypeCastsSniff extends Sniff {
 				);
 				break;
 		}
+
+		return null;
 	}
 }

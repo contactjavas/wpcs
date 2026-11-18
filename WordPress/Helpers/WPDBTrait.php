@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHP_CodeSniffer\Files\File;
@@ -59,7 +61,7 @@ trait WPDBTrait {
 	 *
 	 * @return bool Whether this is a $wpdb method call.
 	 */
-	final protected function is_wpdb_method_call( File $phpcsFile, $stackPtr, array $target_methods ) {
+	final protected function is_wpdb_method_call( File $phpcsFile, int $stackPtr, array $target_methods ): bool {
 		$tokens = $phpcsFile->getTokens();
 		if ( isset( $tokens[ $stackPtr ] ) === false ) {
 			return false;

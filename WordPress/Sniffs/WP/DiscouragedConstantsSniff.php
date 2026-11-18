@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -30,7 +32,7 @@ final class DiscouragedConstantsSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array
 	 */
-	protected $discouraged_constants = array(
+	protected array $discouraged_constants = array(
 		'STYLESHEETPATH'      => 'get_stylesheet_directory()',
 		'TEMPLATEPATH'        => 'get_template_directory()',
 		'PLUGINDIR'           => 'WP_PLUGIN_DIR',
@@ -54,7 +56,7 @@ final class DiscouragedConstantsSniff extends AbstractFunctionParameterSniff {
 	 * @var array<string, array<string, int|string>> Function name as key, array with target
 	 *                                               parameter and name as value.
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'define' => array(
 			'position' => 1,
 			'name'     => 'constant_name',
@@ -68,10 +70,10 @@ final class DiscouragedConstantsSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 		$content = ltrim( strtolower( $this->tokens[ $stackPtr ]['content'] ), '\\' );
 		if ( isset( $this->target_functions[ $content ] ) ) {
 			// Disallow excluding function groups for this sniff.
@@ -82,6 +84,8 @@ final class DiscouragedConstantsSniff extends AbstractFunctionParameterSniff {
 		} else {
 			return $this->process_arbitrary_tstring( $stackPtr );
 		}
+
+		return null;
 	}
 
 	/**
@@ -93,7 +97,7 @@ final class DiscouragedConstantsSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return void
 	 */
-	public function process_arbitrary_tstring( $stackPtr ) {
+	public function process_arbitrary_tstring( int $stackPtr ): void {
 		$content = ltrim( $this->tokens[ $stackPtr ]['content'], '\\' );
 
 		if ( ! isset( $this->discouraged_constants[ $content ] ) ) {
@@ -126,15 +130,15 @@ final class DiscouragedConstantsSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		$target_param = $this->target_functions[ $matched_content ];
 
 		// Was the target parameter passed ?
 		$found_param = PassedParameters::getParameterFromStack( $parameters, $target_param['position'], $target_param['name'] );
 		if ( false === $found_param ) {
-			return;
+			return null;
 		}
 
 		$clean_content = TextStrings::stripQuotes( $found_param['clean'] );
@@ -157,5 +161,7 @@ final class DiscouragedConstantsSniff extends AbstractFunctionParameterSniff {
 				)
 			);
 		}
+
+		return null;
 	}
 }

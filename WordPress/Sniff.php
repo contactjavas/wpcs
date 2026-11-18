@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress;
 
 use PHP_CodeSniffer\Files\File;
@@ -28,7 +30,7 @@ abstract class Sniff implements PHPCS_Sniff {
 	 *
 	 * @var \PHP_CodeSniffer\Files\File
 	 */
-	protected $phpcsFile;
+	protected ?File $phpcsFile = null;
 
 	/**
 	 * The list of tokens in the current file being sniffed.
@@ -37,7 +39,7 @@ abstract class Sniff implements PHPCS_Sniff {
 	 *
 	 * @var array
 	 */
-	protected $tokens;
+	protected ?array $tokens = null;
 
 	/**
 	 * Set sniff properties and hand off to child class for processing of the token.
@@ -48,10 +50,10 @@ abstract class Sniff implements PHPCS_Sniff {
 	 * @param int                         $stackPtr  The position of the current token
 	 *                                               in the stack passed in $tokens.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process( File $phpcsFile, $stackPtr ) {
+	public function process( File $phpcsFile, int $stackPtr ): ?int {
 		$this->phpcsFile = $phpcsFile;
 		$this->tokens    = $phpcsFile->getTokens();
 
@@ -65,8 +67,8 @@ abstract class Sniff implements PHPCS_Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	abstract public function process_token( $stackPtr );
+	abstract public function process_token( int $stackPtr ): ?int;
 }

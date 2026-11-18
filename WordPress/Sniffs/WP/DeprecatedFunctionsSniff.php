@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHPCSUtils\Utils\MessageHelper;
@@ -47,7 +49,7 @@ final class DeprecatedFunctionsSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @var array
 	 */
-	private $deprecated_functions = array(
+	private array $deprecated_functions = array(
 		// WP 0.71.
 		'the_category_head' => array(
 			'alt'     => 'get_the_category_by_ID()',
@@ -1741,7 +1743,7 @@ final class DeprecatedFunctionsSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		// Make sure all array keys are lowercase.
 		$this->deprecated_functions = array_change_key_case( $this->deprecated_functions, \CASE_LOWER );
 
@@ -1761,9 +1763,9 @@ final class DeprecatedFunctionsSniff extends AbstractFunctionRestrictionsSniff {
 	 * @param string $matched_content The token content (function name) which was matched
 	 *                                in lowercase.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_matched_token( $stackPtr, $group_name, $matched_content ) {
+	public function process_matched_token( int $stackPtr, string $group_name, string $matched_content ): ?int {
 
 		$this->set_minimum_wp_version();
 
@@ -1786,5 +1788,7 @@ final class DeprecatedFunctionsSniff extends AbstractFunctionRestrictionsSniff {
 			MessageHelper::stringToErrorcode( $matched_content . 'Found' ),
 			$data
 		);
+
+		return null;
 	}
 }

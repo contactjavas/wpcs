@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WhiteSpace;
 
 use PHP_CodeSniffer\Standards\Squiz\Sniffs\WhiteSpace\OperatorSpacingSniff as PHPCS_Squiz_OperatorSpacingSniff;
@@ -50,7 +52,7 @@ final class OperatorSpacingSniff extends PHPCS_Squiz_OperatorSpacingSniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		$tokens                   = parent::register();
 		$tokens[ \T_BOOLEAN_NOT ] = \T_BOOLEAN_NOT;
 		$tokens                  += Tokens::$booleanOperators;

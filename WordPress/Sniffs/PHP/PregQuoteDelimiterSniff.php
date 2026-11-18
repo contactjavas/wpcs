@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\PHP;
 
 use PHPCSUtils\Utils\PassedParameters;
@@ -26,7 +28,7 @@ final class PregQuoteDelimiterSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	protected $group_name = 'preg_quote';
+	protected string $group_name = 'preg_quote';
 
 	/**
 	 * List of functions this sniff should examine.
@@ -37,7 +39,7 @@ final class PregQuoteDelimiterSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<string, true> Key is function name, value irrelevant.
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'preg_quote' => true,
 	);
 
@@ -52,13 +54,13 @@ final class PregQuoteDelimiterSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 
 		$delimiter = PassedParameters::getParameterFromStack( $parameters, 2, 'delimiter' );
 		if ( false !== $delimiter ) {
-			return;
+			return null;
 		}
 
 		$this->phpcsFile->addWarning(
@@ -66,5 +68,7 @@ final class PregQuoteDelimiterSniff extends AbstractFunctionParameterSniff {
 			$stackPtr,
 			'Missing'
 		);
+
+		return null;
 	}
 }

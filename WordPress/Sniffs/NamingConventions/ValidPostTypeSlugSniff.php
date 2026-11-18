@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\NamingConventions;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -54,7 +56,7 @@ final class ValidPostTypeSlugSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<string, true> Key is function name, value irrelevant.
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'register_post_type' => true,
 	);
 
@@ -69,7 +71,7 @@ final class ValidPostTypeSlugSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<string, true> Key is reserved post type name, value irrelevant.
 	 */
-	protected $reserved_names = array(
+	protected array $reserved_names = array(
 		'action'              => true, // Not a WP post type, but prevents other problems.
 		'attachment'          => true,
 		'author'              => true, // Not a WP post type, but prevents other problems.
@@ -101,7 +103,7 @@ final class ValidPostTypeSlugSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<int|string, int|string>
 	 */
-	private $valid_tokens = array();
+	private array $valid_tokens = array();
 
 	/**
 	 * Returns an array of tokens this test wants to listen for.
@@ -110,7 +112,7 @@ final class ValidPostTypeSlugSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		$this->valid_tokens = Tokens::$textStringTokens + Tokens::$heredocTokens + Tokens::$emptyTokens;
 		return parent::register();
 	}
@@ -129,9 +131,9 @@ final class ValidPostTypeSlugSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		$post_type_param = PassedParameters::getParameterFromStack( $parameters, 1, 'post_type' );
 		if ( false === $post_type_param || '' === $post_type_param['clean'] ) {
 			// Error for using empty slug.
@@ -140,7 +142,7 @@ final class ValidPostTypeSlugSniff extends AbstractFunctionParameterSniff {
 				false === $post_type_param ? $stackPtr : $post_type_param['start'],
 				'Empty'
 			);
-			return;
+			return null;
 		}
 
 		$string_start = $this->phpcsFile->findNext( Collections::textStringStartTokens(), $post_type_param['start'], ( $post_type_param['end'] + 1 ) );
@@ -158,7 +160,7 @@ final class ValidPostTypeSlugSniff extends AbstractFunctionParameterSniff {
 				),
 				3
 			);
-			return;
+			return null;
 		}
 
 		$post_type = TextStrings::getCompleteTextString( $this->phpcsFile, $string_start );
@@ -226,5 +228,7 @@ final class ValidPostTypeSlugSniff extends AbstractFunctionParameterSniff {
 				)
 			);
 		}
+
+		return null;
 	}
 }

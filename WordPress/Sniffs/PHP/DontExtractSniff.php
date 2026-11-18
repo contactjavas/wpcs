@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\PHP;
 
 use WordPressCS\WordPress\AbstractFunctionRestrictionsSniff;
@@ -36,7 +38,7 @@ final class DontExtractSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		return array(
 
 			'extract' => array(

@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\PrintingFunctionsTrait;
 
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -27,7 +29,7 @@ final class IsPrintingFunctionUnitTest extends TestCase {
 	 *
 	 * @var object
 	 */
-	private static $testClass;
+	private static ?object $testClass = null;
 
 	/**
 	 * Set up the test class.
@@ -53,7 +55,7 @@ final class IsPrintingFunctionUnitTest extends TestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataIsPrintingFunction' )]
-	public function testIsPrintingFunction( $functionName, $expectedResult ) {
+	public function testIsPrintingFunction( string $functionName, bool $expectedResult ): void {
 		$this->assertSame(
 			$expectedResult,
 			self::$testClass->is_printing_function( $functionName )
@@ -68,7 +70,7 @@ final class IsPrintingFunctionUnitTest extends TestCase {
 	 *
 	 * @return array<string, array<string, bool|string>>
 	 */
-	public static function dataIsPrintingFunction() {
+	public static function dataIsPrintingFunction(): array {
 		return array(
 			'not_a_printing_function' => array(
 				'functionName'   => 'echo',

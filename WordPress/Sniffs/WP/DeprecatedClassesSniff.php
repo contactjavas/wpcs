@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHPCSUtils\Utils\MessageHelper;
@@ -45,7 +47,7 @@ final class DeprecatedClassesSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @var array
 	 */
-	private $deprecated_classes = array(
+	private array $deprecated_classes = array(
 
 		// WP 3.1.0.
 		'WP_User_Search' => array(
@@ -101,7 +103,7 @@ final class DeprecatedClassesSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		// Make sure all array keys are lowercase.
 		$this->deprecated_classes = array_change_key_case( $this->deprecated_classes, \CASE_LOWER );
 
@@ -121,9 +123,9 @@ final class DeprecatedClassesSniff extends AbstractClassRestrictionsSniff {
 	 * @param string $matched_content The token content (class name) which was matched
 	 *                                in its original case.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_matched_token( $stackPtr, $group_name, $matched_content ) {
+	public function process_matched_token( int $stackPtr, string $group_name, string $matched_content ): ?int {
 
 		$this->set_minimum_wp_version();
 
@@ -148,5 +150,7 @@ final class DeprecatedClassesSniff extends AbstractClassRestrictionsSniff {
 			MessageHelper::stringToErrorcode( $class_name . 'Found' ),
 			$data
 		);
+
+		return null;
 	}
 }

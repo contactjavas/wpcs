@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\ArrayWalkingFunctionsHelper;
 
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -34,7 +36,7 @@ final class IsArrayWalkingFunctionUnitTest extends TestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataIsArrayWalkingFunction' )]
-	public function testIsArrayWalkingFunction( $functionName, $expectedResult ) {
+	public function testIsArrayWalkingFunction( string $functionName, bool $expectedResult ): void {
 		$this->assertSame(
 			$expectedResult,
 			ArrayWalkingFunctionsHelper::is_array_walking_function( $functionName )
@@ -49,7 +51,7 @@ final class IsArrayWalkingFunctionUnitTest extends TestCase {
 	 *
 	 * @return array<string, array<string, bool|string>>
 	 */
-	public static function dataIsArrayWalkingFunction() {
+	public static function dataIsArrayWalkingFunction(): array {
 		return array(
 			'lowercase_name' => array(
 				'functionName'   => 'array_map',

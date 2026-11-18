@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\PHP;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -32,14 +34,14 @@ final class YodaConditionsSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	private $condition_start_tokens;
+	private ?array $condition_start_tokens = null;
 
 	/**
 	 * Returns an array of tokens this test wants to listen for.
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 
 		$starters                        = Tokens::$booleanOperators;
 		$starters                       += Tokens::$assignmentTokens;
@@ -64,9 +66,9 @@ final class YodaConditionsSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		$start = $this->phpcsFile->findPrevious( $this->condition_start_tokens, $stackPtr, null, false, null, true );
 
@@ -90,12 +92,12 @@ final class YodaConditionsSniff extends Sniff {
 
 			// If this is a function call or something, we are OK.
 			if ( \T_CLOSE_PARENTHESIS === $this->tokens[ $i ]['code'] ) {
-				return;
+				return null;
 			}
 		}
 
 		if ( ! $needs_yoda ) {
-			return;
+			return null;
 		}
 
 		// Check if this is a var to var comparison, e.g.: if ( $var1 == $var2 ).
@@ -115,9 +117,11 @@ final class YodaConditionsSniff extends Sniff {
 		}
 
 		if ( \T_VARIABLE === $this->tokens[ $next_non_empty ]['code'] ) {
-			return;
+			return null;
 		}
 
 		$this->phpcsFile->addError( 'Use Yoda Condition checks, you must.', $stackPtr, 'NotYoda' );
+
+		return null;
 	}
 }

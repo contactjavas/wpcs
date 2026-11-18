@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\NamingConventions;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
@@ -29,7 +31,7 @@ final class ValidHookNameUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected errors.
 	 */
-	public function getErrorList( $testFile = 'ValidHookNameUnitTest.1.inc' ) {
+	public function getErrorList( string $testFile = 'ValidHookNameUnitTest.1.inc' ): array {
 
 		switch ( $testFile ) {
 			case 'ValidHookNameUnitTest.1.inc':
@@ -92,7 +94,7 @@ final class ValidHookNameUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected warnings.
 	 */
-	public function getWarningList( $testFile = 'ValidHookNameUnitTest.1.inc' ) {
+	public function getWarningList( string $testFile = 'ValidHookNameUnitTest.1.inc' ): array {
 
 		switch ( $testFile ) {
 			case 'ValidHookNameUnitTest.1.inc':

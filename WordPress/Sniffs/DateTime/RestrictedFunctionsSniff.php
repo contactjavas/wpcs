@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\DateTime;
 
 use WordPressCS\WordPress\AbstractFunctionRestrictionsSniff;
@@ -23,7 +25,7 @@ final class RestrictedFunctionsSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		return array(
 
 			/*

@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\PHP;
 
 use PHPCSUtils\Utils\PassedParameters;
@@ -32,7 +34,7 @@ final class StrictInArraySniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	protected $group_name = 'strict';
+	protected string $group_name = 'strict';
 
 	/**
 	 * List of array functions to which a $strict parameter can be passed.
@@ -50,7 +52,7 @@ final class StrictInArraySniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<string, array{param_position: int, param_name: string, always_needed: bool}> Key is the function name.
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'in_array'     => array(
 			'param_position' => 3,
 			'param_name'     => 'strict',
@@ -79,9 +81,9 @@ final class StrictInArraySniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		$param_info = $this->target_functions[ $matched_content ];
 
 		/*
@@ -95,7 +97,7 @@ final class StrictInArraySniff extends AbstractFunctionParameterSniff {
 		if ( false === $param_info['always_needed'] ) {
 			$has_filter_value = PassedParameters::getParameterFromStack( $parameters, 2, 'filter_value' );
 			if ( false === $has_filter_value ) {
-				return;
+				return null;
 			}
 		}
 
@@ -118,5 +120,7 @@ final class StrictInArraySniff extends AbstractFunctionParameterSniff {
 				array( $matched_content, $param_info['param_name'] )
 			);
 		}
+
+		return null;
 	}
 }

@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\Arrays;
 
 use PHPCSUtils\Fixers\SpacesFixer;
@@ -30,7 +32,7 @@ final class ArrayKeySpacingRestrictionsSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		return array(
 			\T_OPEN_SQUARE_BRACKET,
 		);
@@ -41,13 +43,13 @@ final class ArrayKeySpacingRestrictionsSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		$token = $this->tokens[ $stackPtr ];
 		if ( ! isset( $token['bracket_closer'] ) ) {
-			return;
+			return null;
 		}
 
 		/*
@@ -65,7 +67,7 @@ final class ArrayKeySpacingRestrictionsSniff extends Sniff {
 				'SpacesBetweenBrackets'
 			);
 
-			return;
+			return null;
 		}
 
 		/*
@@ -170,5 +172,7 @@ final class ArrayKeySpacingRestrictionsSniff extends Sniff {
 				);
 			}
 		}
+
+		return null;
 	}
 }

@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\ContextHelper;
 
 use PHPCSUtils\TestUtils\UtilityMethodTestCase;
@@ -145,7 +147,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIsInFunctionCallShouldReturnFalseWhenEmptyValidFunctions() {
+	public function testIsInFunctionCallShouldReturnFalseWhenEmptyValidFunctions(): void {
 		$insideFunctionPtr = $this->getTargetToken( '/* testLowercaseNameInsideCall */', \T_VARIABLE );
 		$result            = ContextHelper::is_in_function_call(
 			self::$phpcsFile,
@@ -167,7 +169,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataIsInFunctionCallShouldMatchRegardlessOfValidFunctionsKeyCase' )]
-	public function testIsInFunctionCallShouldMatchRegardlessOfValidFunctionsKeyCase( $functionName ) {
+	public function testIsInFunctionCallShouldMatchRegardlessOfValidFunctionsKeyCase( string $functionName ): void {
 		$insideFunctionPtr = $this->getTargetToken( '/* testLowercaseNameInsideCall */', \T_VARIABLE );
 		$expected          = $this->getTargetToken( '/* testLowercaseName */', \T_STRING );
 		$result            = ContextHelper::is_in_function_call(
@@ -189,7 +191,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return array<string, array<string, string>>
 	 */
-	public static function dataIsInFunctionCallShouldMatchRegardlessOfValidFunctionsKeyCase() {
+	public static function dataIsInFunctionCallShouldMatchRegardlessOfValidFunctionsKeyCase(): array {
 		return array(
 			'lowercase key' => array(
 				'functionName' => 'valid_function1',
@@ -213,7 +215,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 	 * @dataProvider dataIsInFunctionCallWithGlobalFalseNestedTrue
 	 *
 	 * @param string              $marker         The comment which prefaces the target token.
-	 * @param int|string          $tokenType      The token type to search for.
+	 * @param int|string|array    $tokenType      The token type to search for.
 	 * @param bool                $shouldMatch    Whether `is_in_function_call()` should find a match.
 	 * @param string|null         $expectedMarker The comment which prefaces the expected function name
 	 *                                            in the test file (if a match is expected).
@@ -225,7 +227,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 	#[DataProvider( 'dataIsInFunctionCallWithGlobalFalse' )]
 	#[DataProvider( 'dataIsInFunctionCallWithNestedTrue' )]
 	#[DataProvider( 'dataIsInFunctionCallWithGlobalFalseNestedTrue' )]
-	public function testIsInFunctionCall( $marker, $tokenType, $shouldMatch, $expectedMarker, $params ) {
+	public function testIsInFunctionCall( string $marker, int|string|array $tokenType, bool $shouldMatch, ?string $expectedMarker, array $params ): void {
 		$insideFunctionPtr = $this->getTargetToken( $marker, $tokenType );
 		$result            = ContextHelper::is_in_function_call(
 			self::$phpcsFile,
@@ -254,7 +256,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return array<string, array<string, int|string|bool|array<string, bool>|null>>
 	 */
-	public static function dataIsInFunctionCallWithDefaultParams() {
+	public static function dataIsInFunctionCallWithDefaultParams(): array {
 		$data    = self::dataIsInFunctionCall();
 		$newData = array();
 
@@ -276,7 +278,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return array<string, array<string, int|string|bool|array<string, bool>|null>>
 	 */
-	public static function dataIsInFunctionCallWithGlobalFalse() {
+	public static function dataIsInFunctionCallWithGlobalFalse(): array {
 		$data    = self::dataIsInFunctionCall();
 		$newData = array();
 
@@ -298,7 +300,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return array<string, array<string, int|string|bool|array<string, bool>|null>>
 	 */
-	public static function dataIsInFunctionCallWithNestedTrue() {
+	public static function dataIsInFunctionCallWithNestedTrue(): array {
 		$data    = self::dataIsInFunctionCall();
 		$newData = array();
 
@@ -320,7 +322,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return array<string, array<string, int|string|bool|array<string, bool>|null>>
 	 */
-	public static function dataIsInFunctionCallWithGlobalFalseNestedTrue() {
+	public static function dataIsInFunctionCallWithGlobalFalseNestedTrue(): array {
 		$data    = self::dataIsInFunctionCall();
 		$newData = array();
 
@@ -340,7 +342,7 @@ final class IsInFunctionCallUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return array<string, array<string, int|string|array<string, bool>>>
 	 */
-	public static function dataIsInFunctionCall() {
+	public static function dataIsInFunctionCall(): array {
 		$data = array(
 			// Cases that should never match (regardless of parameters).
 			'plain_assignment' => array(

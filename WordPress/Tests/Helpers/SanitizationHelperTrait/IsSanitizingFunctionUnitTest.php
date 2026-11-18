@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\SanitizationHelperTrait;
 
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -27,7 +29,7 @@ final class IsSanitizingFunctionUnitTest extends TestCase {
 	 *
 	 * @var object
 	 */
-	private static $testClass;
+	private static ?object $testClass = null;
 
 	/**
 	 * Set up the test class.
@@ -52,7 +54,7 @@ final class IsSanitizingFunctionUnitTest extends TestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataIsSanitizingFunction' )]
-	public function testIsSanitizingFunction( $functionName, $expectedResult ) {
+	public function testIsSanitizingFunction( string $functionName, bool $expectedResult ): void {
 		$this->assertSame(
 			$expectedResult,
 			self::$testClass->is_sanitizing_function( $functionName )
@@ -67,7 +69,7 @@ final class IsSanitizingFunctionUnitTest extends TestCase {
 	 *
 	 * @return array<string, array<string, bool|string>>
 	 */
-	public static function dataIsSanitizingFunction() {
+	public static function dataIsSanitizingFunction(): array {
 		return array(
 			'lowercase_name'            => array(
 				'functionName'   => 'sanitize_text_field',

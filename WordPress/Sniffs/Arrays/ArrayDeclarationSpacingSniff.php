@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\Arrays;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -69,7 +71,7 @@ final class ArrayDeclarationSpacingSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		return Collections::arrayOpenTokensBC();
 	}
 
@@ -81,15 +83,15 @@ final class ArrayDeclarationSpacingSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		if ( isset( Collections::shortArrayListOpenTokensBC()[ $this->tokens[ $stackPtr ]['code'] ] )
 			&& Arrays::isShortArray( $this->phpcsFile, $stackPtr ) === false
 		) {
 			// Short list, not short array.
-			return;
+			return null;
 		}
 
 		/*
@@ -98,7 +100,7 @@ final class ArrayDeclarationSpacingSniff extends Sniff {
 		$array_open_close = Arrays::getOpenClose( $this->phpcsFile, $stackPtr );
 		if ( false === $array_open_close ) {
 			// Array open/close could not be determined.
-			return;
+			return null;
 		}
 
 		$opener = $array_open_close['opener'];
@@ -111,6 +113,8 @@ final class ArrayDeclarationSpacingSniff extends Sniff {
 		} else {
 			$this->process_multi_line_array( $stackPtr, $opener );
 		}
+
+		return null;
 	}
 
 	/**
@@ -125,7 +129,7 @@ final class ArrayDeclarationSpacingSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function process_single_line_array( $stackPtr, $opener, $closer ) {
+	protected function process_single_line_array( int $stackPtr, int $opener, int $closer ): void {
 		// For now, if the new property has not been changed from its default value and the deprecated property has, use
 		// the deprecated property's value.
 		$allow_single_item = $this->allow_single_item_single_line_explicit_key_arrays;
@@ -190,7 +194,7 @@ final class ArrayDeclarationSpacingSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function process_multi_line_array( $stackPtr, $opener ) {
+	protected function process_multi_line_array( int $stackPtr, int $opener ): void {
 		/*
 		 * Check that each array item starts on a new line.
 		 */

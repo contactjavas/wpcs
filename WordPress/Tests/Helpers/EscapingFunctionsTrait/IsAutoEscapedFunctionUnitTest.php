@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\EscapingFunctionsTrait;
 
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -27,7 +29,7 @@ final class IsAutoEscapedFunctionUnitTest extends TestCase {
 	 *
 	 * @var object
 	 */
-	private $testClass;
+	private ?object $testClass = null;
 
 	/**
 	 * Set up the test class for each test.
@@ -54,7 +56,7 @@ final class IsAutoEscapedFunctionUnitTest extends TestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataIsAutoEscapedFunction' )]
-	public function testIsAutoEscapedFunction( $functionName, $expectedResult ) {
+	public function testIsAutoEscapedFunction( string $functionName, bool $expectedResult ): void {
 		$this->assertSame(
 			$expectedResult,
 			$this->testClass->is_auto_escaped_function( $functionName )
@@ -69,7 +71,7 @@ final class IsAutoEscapedFunctionUnitTest extends TestCase {
 	 *
 	 * @return array<string, array<string, bool|string>>
 	 */
-	public static function dataIsAutoEscapedFunction() {
+	public static function dataIsAutoEscapedFunction(): array {
 		return array(
 			'lowercase_name'               => array(
 				'functionName'   => 'bloginfo',
@@ -91,7 +93,7 @@ final class IsAutoEscapedFunctionUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testCustomAutoEscapedFunctionIsRecognized() {
+	public function testCustomAutoEscapedFunctionIsRecognized(): void {
 		$this->assertFalse(
 			$this->testClass->is_auto_escaped_function( 'my_custom_auto_escaped' ),
 			'Custom auto-escaped function is recognized even though not set'
@@ -114,7 +116,7 @@ final class IsAutoEscapedFunctionUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testIsAutoEscapedFunctionUpdatesWhenCustomFunctionsChange() {
+	public function testIsAutoEscapedFunctionUpdatesWhenCustomFunctionsChange(): void {
 		$this->testClass->customAutoEscapedFunctions = array( 'first_custom' );
 		$this->assertTrue(
 			$this->testClass->is_auto_escaped_function( 'first_custom' ),
@@ -137,7 +139,7 @@ final class IsAutoEscapedFunctionUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testIsAutoEscapedFunctionDoesNotRecognizeEscapingFunctions() {
+	public function testIsAutoEscapedFunctionDoesNotRecognizeEscapingFunctions(): void {
 		$this->testClass->customEscapingFunctions    = array( 'custom_escape' );
 		$this->testClass->customAutoEscapedFunctions = array( 'custom_autoescape' );
 

@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WhiteSpace;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -33,7 +35,7 @@ final class CastStructureSpacingSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		return Tokens::$castTokens;
 	}
 
@@ -42,9 +44,9 @@ final class CastStructureSpacingSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		if ( \T_WHITESPACE !== $this->tokens[ ( $stackPtr - 1 ) ]['code']
 			&& \T_ELLIPSIS !== $this->tokens[ ( $stackPtr - 1 ) ]['code']
@@ -55,5 +57,7 @@ final class CastStructureSpacingSniff extends Sniff {
 				$this->phpcsFile->fixer->addContentBefore( $stackPtr, ' ' );
 			}
 		}
+
+		return null;
 	}
 }

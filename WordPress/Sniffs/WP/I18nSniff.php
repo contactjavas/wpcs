@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -101,7 +103,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<string, string> Key is function name, value is the function type.
 	 */
-	protected $i18n_functions = array(
+	protected array $i18n_functions = array(
 		'translate'                      => 'simple',
 		'__'                             => 'simple',
 		'esc_attr__'                     => 'simple',
@@ -127,7 +129,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var bool
 	 */
-	private $text_domain_contains_default = false;
+	private bool $text_domain_contains_default = false;
 
 	/**
 	 * Whether or not the `default` text domain is the only allowed text domain.
@@ -136,7 +138,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var bool
 	 */
-	private $text_domain_is_default = false;
+	private bool $text_domain_is_default = false;
 
 	/**
 	 * Parameter specifications for the functions in each group.
@@ -148,7 +150,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var array<string, array> Array of the parameter positions and names.
 	 */
-	private $parameter_specs = array(
+	private array $parameter_specs = array(
 		'simple' => array(
 			1 => 'text',
 			2 => 'domain',
@@ -197,7 +199,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		return array(
 			'i18n' => array(
 				'functions' => array_keys( $this->i18n_functions ),
@@ -219,9 +221,9 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		// Reset defaults.
 		$this->text_domain_contains_default = false;
@@ -251,6 +253,8 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 		$this->exclude = array();
 
 		parent::process_token( $stackPtr );
+
+		return null;
 	}
 
 	/**
@@ -263,14 +267,14 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 * @param string $matched_content The token content (function name) which was matched
 	 *                                in lowercase.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_matched_token( $stackPtr, $group_name, $matched_content ) {
+	public function process_matched_token( int $stackPtr, string $group_name, string $matched_content ): ?int {
 
 		$func_open_paren_token = $this->phpcsFile->findNext( Tokens::$emptyTokens, ( $stackPtr + 1 ), null, true );
 		if ( ! isset( $this->tokens[ $func_open_paren_token ]['parenthesis_closer'] ) ) {
 			// Live coding, parse error or not a function call.
-			return;
+			return null;
 		}
 
 		if ( 'typos' === $group_name && '_' === $matched_content ) {
@@ -279,7 +283,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 				$stackPtr,
 				'SingleUnderscoreGetTextFunction'
 			);
-			return;
+			return null;
 		}
 
 		if ( 'translate' === $matched_content || 'translate_with_gettext_context' === $matched_content ) {
@@ -292,6 +296,8 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 		}
 
 		parent::process_matched_token( $stackPtr, $group_name, $matched_content );
+
+		return null;
 	}
 
 	/**
@@ -304,9 +310,9 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 * @param string $matched_content The token content (function name) which was matched
 	 *                                in lowercase.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_no_parameters( $stackPtr, $group_name, $matched_content ) {
+	public function process_no_parameters( int $stackPtr, string $group_name, string $matched_content ): ?int {
 		$function_param_specs = $this->parameter_specs[ $this->i18n_functions[ $matched_content ] ];
 
 		foreach ( $function_param_specs as $param_name ) {
@@ -318,6 +324,8 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 				array( $param_name, $matched_content )
 			);
 		}
+
+		return null;
 	}
 
 	/**
@@ -331,9 +339,9 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		/*
 		 * Retrieve the individual parameters from the array in a way that we know which is which.
 		 */
@@ -410,6 +418,8 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 		 * Check if a translators comments is necessary and if so, if it exists.
 		 */
 		$this->check_for_translator_comment( $stackPtr, $matched_content, $parameter_details );
+
+		return null;
 	}
 
 	/**
@@ -425,7 +435,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return void
 	 */
-	private function check_argument_count( $stackPtr, $matched_content, $parameters, $expected_count ) {
+	private function check_argument_count( int $stackPtr, string $matched_content, array $parameters, int $expected_count ): void {
 		$actual_count = count( $parameters );
 		if ( $actual_count > $expected_count ) {
 			$this->phpcsFile->addError(
@@ -453,7 +463,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return bool Whether or not the argument is a string literal.
 	 */
-	private function check_argument_is_string_literal( $stackPtr, $matched_content, $param_name, $param_info ) {
+	private function check_argument_is_string_literal( int $stackPtr, string $matched_content, string $param_name, array|false $param_info ): bool {
 		/*
 		 * Check if the parameter was supplied.
 		 */
@@ -554,7 +564,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return void
 	 */
-	private function check_textdomain_matches( $matched_content, $param_name, $param_info ) {
+	private function check_textdomain_matches( string $matched_content, string $param_name, array|false $param_info ): void {
 		$stripped_content = TextStrings::stripQuotes( $param_info['clean'] );
 
 		if ( empty( $this->text_domain ) && '' === $stripped_content ) {
@@ -646,7 +656,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return void
 	 */
-	private function check_placeholders_in_string( $matched_content, $param_name, $param_info ) {
+	private function check_placeholders_in_string( string $matched_content, string $param_name, array|false $param_info ): void {
 		$content = $param_info['clean'];
 
 		// UnorderedPlaceholders: Check for multiple unordered placeholders.
@@ -728,7 +738,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return bool Whether or not the text string has translatable content.
 	 */
-	private function check_string_has_translatable_content( $matched_content, $param_name, $param_info ) {
+	private function check_string_has_translatable_content( string $matched_content, string $param_name, array|false $param_info ): bool {
 		// Strip placeholders and surrounding quotes.
 		$content_without_quotes  = trim( TextStrings::stripQuotes( $param_info['clean'] ) );
 		$non_placeholder_content = preg_replace( self::SPRINTF_PLACEHOLDER_REGEX, '', $content_without_quotes );
@@ -763,7 +773,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return void
 	 */
-	private function check_string_has_no_html_wrapper( $matched_content, $param_name, $param_info ) {
+	private function check_string_has_no_html_wrapper( string $matched_content, string $param_name, array|false $param_info ): void {
 		// Strip surrounding quotes.
 		$content_without_quotes = trim( TextStrings::stripQuotes( $param_info['clean'] ) );
 
@@ -819,7 +829,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return void
 	 */
-	private function compare_single_and_plural_arguments( $stackPtr, $param_info_single, $param_info_plural ) {
+	private function compare_single_and_plural_arguments( int $stackPtr, array $param_info_single, array $param_info_plural ): void {
 		$single_content = $param_info_single['clean'];
 		$plural_content = $param_info_plural['clean'];
 
@@ -861,7 +871,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return void
 	 */
-	private function check_for_translator_comment( $stackPtr, $matched_content, $parameters ) {
+	private function check_for_translator_comment( int $stackPtr, string $matched_content, array $parameters ): void {
 		$needs_translators_comment = false;
 
 		foreach ( $parameters as $param_name => $param_info ) {
@@ -968,7 +978,7 @@ final class I18nSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @return bool
 	 */
-	private function is_translators_comment( $content ) {
+	private function is_translators_comment( string $content ): bool {
 		if ( preg_match( '`^(?:(?://|/\*{1,2}) )?translators:`i', $content ) === 1 ) {
 			return true;
 		}

@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use WordPressCS\WordPress\AbstractClassRestrictionsSniff;
@@ -32,7 +34,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 * @var string[] The class names in their "proper" case.
 	 *               The constructor will add the lowercased class name as a key to each entry.
 	 */
-	private $wp_classes = array(
+	private array $wp_classes = array(
 		'_WP_Dependency',
 		'_WP_Editors',
 		'_WP_List_Table_Compat',
@@ -448,7 +450,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 * @var string[] The class names in their "proper" case.
 	 *               The constructor will add the lowercased class name as a key to each entry.
 	 */
-	private $wp_themes_classes = array(
+	private array $wp_themes_classes = array(
 		'TwentyNineteen_SVG_Icons',
 		'TwentyNineteen_Walker_Comment',
 		'TwentyTwenty_Customize',
@@ -482,7 +484,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 * @var string[] The class names in their "proper" case.
 	 *               The constructor will add the lowercased class name as a key to each entry.
 	 */
-	private $aiclient_classes = array(
+	private array $aiclient_classes = array(
 		// Classes.
 		'WordPress\AiClientDependencies\Http\Discovery\ClassDiscovery',
 		'WordPress\AiClientDependencies\Http\Discovery\Exception\ClassInstantiationFailedException',
@@ -647,7 +649,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 * @var string[] The class names in their "proper" case.
 	 *               The constructor will add the lowercased class name as a key to each entry.
 	 */
-	private $avif_classes = array(
+	private array $avif_classes = array(
 		'Avifinfo\\Box',
 		'Avifinfo\\Chan_Prop',
 		'Avifinfo\\Dim_Prop',
@@ -669,7 +671,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 * @var string[] The class names in their "proper" case.
 	 *               The constructor will add the lowercased class name as a key to each entry.
 	 */
-	private $getid3_classes = array(
+	private array $getid3_classes = array(
 		'AMFReader',
 		'AMFStream',
 		'AVCSequenceParameterSetReader',
@@ -705,7 +707,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 * @var string[] The class names in their "proper" case.
 	 *               The constructor will add the lowercased class name as a key to each entry.
 	 */
-	private $phpmailer_classes = array(
+	private array $phpmailer_classes = array(
 		// Classes.
 		'PHPMailer\\PHPMailer\\DSNConfigurator',
 		'PHPMailer\\PHPMailer\\Exception',
@@ -730,7 +732,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 * @var string[] The class names in their "proper" case.
 	 *               The constructor will add the lowercased class name as a key to each entry.
 	 */
-	private $requests_classes = array(
+	private array $requests_classes = array(
 		// Interfaces, Requests v1.
 		'Requests_Auth',
 		'Requests_Hooker',
@@ -874,7 +876,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 * @var string[] The class names in their "proper" case.
 	 *               The constructor will add the lowercased class name as a key to each entry.
 	 */
-	private $simplepie_classes = array(
+	private array $simplepie_classes = array(
 		// Interfaces, SimplePie v1.
 		'SimplePie_Cache_Base',
 
@@ -975,7 +977,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @var string[] The class names in lowercase.
 	 */
-	private $wp_classes_lc = array();
+	private array $wp_classes_lc = array();
 
 	/**
 	 * List of all WP native classes as shipped with themes in lowercase.
@@ -986,7 +988,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @var string[] The class names in lowercase.
 	 */
-	private $wp_themes_classes_lc = array();
+	private array $wp_themes_classes_lc = array();
 
 	/**
 	 * List of all AI Client classes in lowercase.
@@ -997,7 +999,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @var string[] The class names in lowercase.
 	 */
-	private $aiclient_classes_lc = array();
+	private array $aiclient_classes_lc = array();
 
 	/**
 	 * List of all AVIF classes in lowercase.
@@ -1008,7 +1010,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @var string[] The class names in lowercase.
 	 */
-	private $avif_classes_lc = array();
+	private array $avif_classes_lc = array();
 
 	/**
 	 * List of all GetID3 classes in lowercase.
@@ -1019,7 +1021,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @var string[] The class names in lowercase.
 	 */
-	private $getid3_classes_lc = array();
+	private array $getid3_classes_lc = array();
 
 	/**
 	 * List of all PHPMailer classes in lowercase.
@@ -1030,7 +1032,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @var string[] The class names in lowercase.
 	 */
-	private $phpmailer_classes_lc = array();
+	private array $phpmailer_classes_lc = array();
 
 	/**
 	 * List of all Requests classes in lowercase.
@@ -1041,7 +1043,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @var string[] The class names in lowercase.
 	 */
-	private $requests_classes_lc = array();
+	private array $requests_classes_lc = array();
 
 	/**
 	 * List of all SimplePie classes in lowercase.
@@ -1052,7 +1054,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @var string[] The class names in lowercase.
 	 */
-	private $simplepie_classes_lc = array();
+	private array $simplepie_classes_lc = array();
 
 	/**
 	 * Groups names.
@@ -1063,7 +1065,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @var array
 	 */
-	private $class_groups = array(
+	private array $class_groups = array(
 		'wp_classes',
 		'wp_themes_classes',
 		'aiclient_classes',
@@ -1095,7 +1097,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		$groups = array();
 		foreach ( $this->class_groups as $name ) {
 			$name_lc         = $name . '_lc';
@@ -1118,9 +1120,9 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 * @param string $matched_content The token content (class name) which was matched.
 	 *                                in its original case.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_matched_token( $stackPtr, $group_name, $matched_content ) {
+	public function process_matched_token( int $stackPtr, string $group_name, string $matched_content ): ?int {
 
 		$matched_unqualified = ltrim( $matched_content, '\\' );
 		$matched_lowercase   = strtolower( $matched_unqualified );
@@ -1128,7 +1130,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 
 		if ( $matched_unqualified === $matched_proper_case ) {
 			// Already using proper case, nothing to do.
-			return;
+			return null;
 		}
 
 		$warning = 'It is strongly recommended to refer to classes by their properly cased name. Expected: %s Found: %s';
@@ -1138,6 +1140,8 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 		);
 
 		$this->phpcsFile->addWarning( $warning, $stackPtr, 'Incorrect', $data );
+
+		return null;
 	}
 
 	/**
@@ -1149,7 +1153,7 @@ final class ClassNameCaseSniff extends AbstractClassRestrictionsSniff {
 	 *
 	 * @return string
 	 */
-	private function get_proper_case( $matched_lc ) {
+	private function get_proper_case( string $matched_lc ): string {
 		foreach ( $this->class_groups as $name ) {
 			$current = $this->$name; // Needed to prevent issues with PHP < 7.0.
 			if ( isset( $current[ $matched_lc ] ) ) {

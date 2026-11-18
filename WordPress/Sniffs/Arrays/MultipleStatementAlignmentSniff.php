@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\Arrays;
 
 use PHPCSUtils\Tokens\Collections;
@@ -127,7 +129,7 @@ final class MultipleStatementAlignmentSniff extends Sniff {
 	 *
 	 * @var string
 	 */
-	private $operator;
+	private ?string $operator = null;
 
 	/**
 	 * Storage for parsed $alignMultilineItems numeric part.
@@ -138,7 +140,7 @@ final class MultipleStatementAlignmentSniff extends Sniff {
 	 *
 	 * @var string
 	 */
-	private $number;
+	private ?string $number = null;
 
 	/**
 	 * Returns an array of tokens this test wants to listen for.
@@ -147,7 +149,7 @@ final class MultipleStatementAlignmentSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		return Collections::arrayOpenTokensBC();
 	}
 
@@ -158,16 +160,16 @@ final class MultipleStatementAlignmentSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		if ( isset( Collections::shortArrayListOpenTokensBC()[ $this->tokens[ $stackPtr ]['code'] ] )
 			&& Arrays::isShortArray( $this->phpcsFile, $stackPtr ) === false
 		) {
 			// Short list, not short array.
-			return;
+			return null;
 		}
 
 		/*
@@ -176,7 +178,7 @@ final class MultipleStatementAlignmentSniff extends Sniff {
 		$array_open_close = Arrays::getOpenClose( $this->phpcsFile, $stackPtr );
 		if ( false === $array_open_close ) {
 			// Array open/close could not be determined.
-			return;
+			return null;
 		}
 
 		$opener = $array_open_close['opener'];
@@ -184,7 +186,7 @@ final class MultipleStatementAlignmentSniff extends Sniff {
 
 		$array_items = PassedParameters::getParameters( $this->phpcsFile, $stackPtr );
 		if ( empty( $array_items ) ) {
-			return;
+			return null;
 		}
 
 		// Pass off to either the single line or multi-line array analysis.
@@ -193,6 +195,8 @@ final class MultipleStatementAlignmentSniff extends Sniff {
 		} else {
 			return $this->process_multi_line_array( $stackPtr, $array_items, $opener, $closer );
 		}
+
+		return null;
 	}
 
 	/**
@@ -213,10 +217,10 @@ final class MultipleStatementAlignmentSniff extends Sniff {
 	 * @param int   $opener   The position of the array opener.
 	 * @param int   $closer   The position of the array closer.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	protected function process_single_line_array( $stackPtr, $items, $opener, $closer ) {
+	protected function process_single_line_array( int $stackPtr, array $items, int $opener, int $closer ): ?int {
 		/*
 		 * For single line arrays, we don't care about what level the arrow is from.
 		 * Just find and fix them all.
@@ -268,7 +272,7 @@ final class MultipleStatementAlignmentSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function process_multi_line_array( $stackPtr, $items, $opener, $closer ) {
+	protected function process_multi_line_array( int $stackPtr, array $items, int $opener, int $closer ): void {
 
 		$this->maxColumn = (int) $this->maxColumn;
 		$this->validate_align_multiline_items();
@@ -546,7 +550,7 @@ final class MultipleStatementAlignmentSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function validate_align_multiline_items() {
+	protected function validate_align_multiline_items(): void {
 		$alignMultilineItems = $this->alignMultilineItems;
 
 		if ( 'always' === $alignMultilineItems || 'never' === $alignMultilineItems ) {

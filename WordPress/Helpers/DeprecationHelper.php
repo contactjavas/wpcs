@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHP_CodeSniffer\Files\File;
@@ -43,7 +45,7 @@ final class DeprecationHelper {
 	 *
 	 * @return bool
 	 */
-	public static function is_function_deprecated( File $phpcsFile, $stackPtr ) {
+	public static function is_function_deprecated( File $phpcsFile, int $stackPtr ): bool {
 		$tokens = $phpcsFile->getTokens();
 		if ( isset( $tokens[ $stackPtr ] ) === false ) {
 			return false;

@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use WordPressCS\WordPress\Helpers\RulesetPropertyHelper;
@@ -44,7 +46,7 @@ trait PrintingFunctionsTrait {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $printingFunctions = array(
+	private array $printingFunctions = array(
 		'_deprecated_argument'    => true,
 		'_deprecated_constructor' => true,
 		'_deprecated_file'        => true,
@@ -72,9 +74,9 @@ trait PrintingFunctionsTrait {
 	 * @since 3.0.0  - Moved from the EscapeOutput Sniff class to this trait.
 	 *               - Visibility changed from protected to private.
 	 *
-	 * @var string[]
+	 * @var mixed Raw ruleset value (PHPCS may assign string|bool|null|array).
 	 */
-	private $addedCustomPrintingFunctions = array();
+	private mixed $addedCustomPrintingFunctions = array();
 
 	/**
 	 * Combined list of WP/PHP native and custom printing functions.
@@ -83,7 +85,7 @@ trait PrintingFunctionsTrait {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $allPrintingFunctions = array();
+	private array $allPrintingFunctions = array();
 
 	/**
 	 * Retrieve a list of all known printing functions.
@@ -92,7 +94,7 @@ trait PrintingFunctionsTrait {
 	 *
 	 * @return array<string, bool>
 	 */
-	final public function get_printing_functions() {
+	final public function get_printing_functions(): array {
 		if ( array() === $this->allPrintingFunctions
 			|| $this->customPrintingFunctions !== $this->addedCustomPrintingFunctions
 		) {
@@ -116,7 +118,7 @@ trait PrintingFunctionsTrait {
 	 *
 	 * @return bool
 	 */
-	final public function is_printing_function( $functionName ) {
+	final public function is_printing_function( string $functionName ): bool {
 		return isset( $this->get_printing_functions()[ strtolower( $functionName ) ] );
 	}
 }

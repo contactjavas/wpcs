@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\WPHookHelper;
 
 use PHPCSUtils\TestUtils\UtilityMethodTestCase;
@@ -36,7 +38,7 @@ final class GetHookNameParamUnitTest extends UtilityMethodTestCase {
 	 * @return void
 	 */
 	#[DataProvider( 'dataGetHookNameParam' )]
-	public function testGetHookNameParam( $testMarker, $expectedResult ) {
+	public function testGetHookNameParam( string $testMarker, string|false $expectedResult ): void {
 		$stackPtr     = $this->getTargetToken( $testMarker, \T_STRING );
 		$functionName = self::$phpcsFile->getTokens()[ $stackPtr ]['content'];
 		$parameters   = PassedParameters::getParameters( self::$phpcsFile, $stackPtr );
@@ -60,7 +62,7 @@ final class GetHookNameParamUnitTest extends UtilityMethodTestCase {
 	 *
 	 * @return array<string, array<string, string|false>>
 	 */
-	public static function dataGetHookNameParam() {
+	public static function dataGetHookNameParam(): array {
 		return array(
 			'not_a_hook_function' => array(
 				'testMarker'     => '/* testNotAHookFunction */',

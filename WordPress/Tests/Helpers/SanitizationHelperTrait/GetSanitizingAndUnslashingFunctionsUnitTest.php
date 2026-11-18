@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Helpers\SanitizationHelperTrait;
 
 use PHPUnit\Framework\TestCase;
@@ -26,7 +28,7 @@ final class GetSanitizingAndUnslashingFunctionsUnitTest extends TestCase {
 	 *
 	 * @var object
 	 */
-	private $testClass;
+	private ?object $testClass = null;
 
 	/**
 	 * Set up the test class.
@@ -45,7 +47,7 @@ final class GetSanitizingAndUnslashingFunctionsUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetSanitizingAndUnslashingFunctionsContainsKnownFunction() {
+	public function testGetSanitizingAndUnslashingFunctionsContainsKnownFunction(): void {
 		$result = $this->testClass->get_sanitizing_and_unslashing_functions();
 
 		$this->assertIsArray( $result );
@@ -58,7 +60,7 @@ final class GetSanitizingAndUnslashingFunctionsUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetSanitizingAndUnslashingFunctionsIncludesCustomFunctions() {
+	public function testGetSanitizingAndUnslashingFunctionsIncludesCustomFunctions(): void {
 		$defaultCount = count( $this->testClass->get_sanitizing_and_unslashing_functions() );
 		$this->testClass->customUnslashingSanitizingFunctions = array( 'my_custom_unslasher' );
 
@@ -75,7 +77,7 @@ final class GetSanitizingAndUnslashingFunctionsUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetSanitizingAndUnslashingFunctionsUpdatesWhenCustomFunctionsChange() {
+	public function testGetSanitizingAndUnslashingFunctionsUpdatesWhenCustomFunctionsChange(): void {
 		$this->testClass->customUnslashingSanitizingFunctions = array( 'first_custom' );
 		$result = $this->testClass->get_sanitizing_and_unslashing_functions();
 		$this->assertArrayHasKey( 'first_custom', $result );
@@ -93,7 +95,7 @@ final class GetSanitizingAndUnslashingFunctionsUnitTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testtGetSanitizingAndUnslashingFunctionDoesNotRecognizeSanitizingOnlyFunctions() {
+	public function testtGetSanitizingAndUnslashingFunctionDoesNotRecognizeSanitizingOnlyFunctions(): void {
 		$this->testClass->customSanitizingFunctions           = array( 'custom_sanitize' );
 		$this->testClass->customUnslashingSanitizingFunctions = array( 'custom_unslash_and_sanitize' );
 

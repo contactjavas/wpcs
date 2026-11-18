@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\Arrays;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -49,7 +51,7 @@ final class ArrayIndentationSniff extends Sniff {
 	 *
 	 * @var int
 	 */
-	private $tab_width;
+	private ?int $tab_width = null;
 
 	/**
 	 * Tokens to ignore for subsequent lines in a multi-line array item.
@@ -58,14 +60,14 @@ final class ArrayIndentationSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	private $ignore_tokens = array();
+	private array $ignore_tokens = array();
 
 	/**
 	 * Returns an array of tokens this test wants to listen for.
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		/*
 		 * Set the $ignore_tokens property.
 		 *
@@ -83,10 +85,10 @@ final class ArrayIndentationSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 		if ( ! isset( $this->tab_width ) ) {
 			$this->tab_width = Helper::getTabWidth( $this->phpcsFile );
 		}
@@ -95,7 +97,7 @@ final class ArrayIndentationSniff extends Sniff {
 			&& Arrays::isShortArray( $this->phpcsFile, $stackPtr ) === false
 		) {
 			// Short list, not short array.
-			return;
+			return null;
 		}
 
 		/*
@@ -104,7 +106,7 @@ final class ArrayIndentationSniff extends Sniff {
 		$array_open_close = Arrays::getOpenClose( $this->phpcsFile, $stackPtr );
 		if ( false === $array_open_close ) {
 			// Array open/close could not be determined.
-			return;
+			return null;
 		}
 
 		$opener = $array_open_close['opener'];
@@ -112,7 +114,7 @@ final class ArrayIndentationSniff extends Sniff {
 
 		if ( $this->tokens[ $opener ]['line'] === $this->tokens[ $closer ]['line'] ) {
 			// Not interested in single line arrays.
-			return;
+			return null;
 		}
 
 		/*
@@ -166,7 +168,7 @@ final class ArrayIndentationSniff extends Sniff {
 		$array_items = PassedParameters::getParameters( $this->phpcsFile, $stackPtr );
 		if ( empty( $array_items ) ) {
 			// Strange, no array items found.
-			return;
+			return null;
 		}
 
 		$expected_spaces      = ( $opener_line_spaces + $this->tab_width );
@@ -404,6 +406,8 @@ final class ArrayIndentationSniff extends Sniff {
 
 			$end_of_previous_item = $end_of_this_item;
 		}
+
+		return null;
 	}
 
 	/**
@@ -416,7 +420,7 @@ final class ArrayIndentationSniff extends Sniff {
 	 *
 	 * @return bool
 	 */
-	protected function ignore_token( $ptr ) {
+	protected function ignore_token( int $ptr ): bool {
 		$token_code = $this->tokens[ $ptr ]['code'];
 
 		if ( isset( $this->ignore_tokens[ $token_code ] ) ) {
@@ -453,7 +457,7 @@ final class ArrayIndentationSniff extends Sniff {
 	 *
 	 * @return int Nr of spaces found. Where necessary, tabs are translated to spaces.
 	 */
-	protected function get_indentation_size( $ptr ) {
+	protected function get_indentation_size( int $ptr ): int {
 
 		// Find the first token on the line.
 		for ( ; $ptr >= 0; $ptr-- ) {
@@ -493,7 +497,7 @@ final class ArrayIndentationSniff extends Sniff {
 	 *
 	 * @return string
 	 */
-	protected function get_indentation_string( $nr ) {
+	protected function get_indentation_string( int $nr ): string {
 		if ( 0 >= $nr ) {
 			return '';
 		}
@@ -524,7 +528,7 @@ final class ArrayIndentationSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function add_array_alignment_error( $ptr, $error, $error_code, $expected, $found, $new_indent ) {
+	protected function add_array_alignment_error( int $ptr, string $error, string $error_code, int $expected, int $found, string $new_indent ): void {
 
 		$fix = $this->phpcsFile->addFixableError( $error, $ptr, $error_code, array( $expected, $found ) );
 		if ( true === $fix ) {
@@ -540,7 +544,7 @@ final class ArrayIndentationSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function fix_alignment_error( $ptr, $new_indent ) {
+	protected function fix_alignment_error( int $ptr, string $new_indent ): void {
 		if ( 1 === $this->tokens[ $ptr ]['column'] ) {
 			$this->phpcsFile->fixer->addContentBefore( $ptr, $new_indent );
 		} else {

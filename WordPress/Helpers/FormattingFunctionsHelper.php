@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 /**
@@ -33,7 +35,7 @@ final class FormattingFunctionsHelper {
 	 *
 	 * @var array<string, bool>
 	 */
-	private static $formattingFunctions = array(
+	private static array $formattingFunctions = array(
 		'antispambot' => true,
 		'array_fill'  => true,
 		'ent2ncr'     => true,
@@ -54,7 +56,7 @@ final class FormattingFunctionsHelper {
 	 *
 	 * @return bool
 	 */
-	public static function is_formatting_function( $functionName ) {
+	public static function is_formatting_function( string $functionName ): bool {
 		return isset( self::$formattingFunctions[ ltrim( strtolower( $functionName ), '\\' ) ] );
 	}
 }

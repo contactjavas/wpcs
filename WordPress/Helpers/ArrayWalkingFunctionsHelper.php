@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHP_CodeSniffer\Files\File;
@@ -39,7 +41,7 @@ final class ArrayWalkingFunctionsHelper {
 	 *
 	 * @var array<string, array>
 	 */
-	private static $arrayWalkingFunctions = array(
+	private static array $arrayWalkingFunctions = array(
 		'array_map' => array(
 			'position' => 1,
 			'name'     => 'callback',
@@ -57,7 +59,7 @@ final class ArrayWalkingFunctionsHelper {
 	 *
 	 * @return array<string, bool>
 	 */
-	public static function get_functions() {
+	public static function get_functions(): array {
 		return \array_fill_keys( \array_keys( self::$arrayWalkingFunctions ), true );
 	}
 
@@ -70,7 +72,7 @@ final class ArrayWalkingFunctionsHelper {
 	 *
 	 * @return bool
 	 */
-	public static function is_array_walking_function( $functionName ) {
+	public static function is_array_walking_function( string $functionName ): bool {
 		return isset( self::$arrayWalkingFunctions[ ltrim( strtolower( $functionName ), '\\' ) ] );
 	}
 
@@ -87,7 +89,7 @@ final class ArrayWalkingFunctionsHelper {
 	 *                     See the PHPCSUtils PassedParameters::getParameters() documentation
 	 *                     for the format of the returned (single-dimensional) array.
 	 */
-	public static function get_callback_parameter( File $phpcsFile, $stackPtr ) {
+	public static function get_callback_parameter( File $phpcsFile, int $stackPtr ): array|false {
 		$tokens = $phpcsFile->getTokens();
 		if ( isset( $tokens[ $stackPtr ] ) === false ) {
 			return false;

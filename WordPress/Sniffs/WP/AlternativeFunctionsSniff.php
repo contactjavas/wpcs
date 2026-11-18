@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WP;
 
 use PHPCSUtils\Utils\PassedParameters;
@@ -38,7 +40,7 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 	 *
 	 * @var array
 	 */
-	private $allowed_local_streams = array(
+	private array $allowed_local_streams = array(
 		'php://input'  => true,
 		'php://output' => true,
 		'php://stdin'  => true,
@@ -57,7 +59,7 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 	 *
 	 * @var array
 	 */
-	private $allowed_local_stream_partials = array(
+	private array $allowed_local_stream_partials = array(
 		'php://temp/',
 		'php://fd/',
 	);
@@ -72,7 +74,7 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 	 *
 	 * @var array
 	 */
-	private $allowed_local_stream_constants = array(
+	private array $allowed_local_stream_constants = array(
 		'STDIN'  => true,
 		'STDOUT' => true,
 		'STDERR' => true,
@@ -92,7 +94,7 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 	 *
 	 * @return array
 	 */
-	public function getGroups() {
+	public function getGroups(): array {
 		return array(
 			'curl' => array(
 				'type'      => 'warning',
@@ -215,10 +217,10 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 	 * @param string $matched_content The token content (function name) which was matched
 	 *                                in lowercase.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_matched_token( $stackPtr, $group_name, $matched_content ) {
+	public function process_matched_token( int $stackPtr, string $group_name, string $matched_content ): ?int {
 
 		$this->set_minimum_wp_version();
 
@@ -233,7 +235,7 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 				 */
 				$has_allowed_tags = PassedParameters::getParameter( $this->phpcsFile, $stackPtr, 2, 'allowed_tags' );
 				if ( false !== $has_allowed_tags ) {
-					return;
+					return null;
 				}
 
 				unset( $has_allowed_tags );
@@ -250,7 +252,7 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 				if ( false !== $has_component
 					&& $this->wp_version_compare( $this->minimum_wp_version, '4.7.0', '<' )
 				) {
-					return;
+					return null;
 				}
 
 				unset( $has_component );
@@ -266,13 +268,13 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 				$use_include_path_param = PassedParameters::getParameterFromStack( $params, 2, 'use_include_path' );
 				if ( false !== $use_include_path_param && 'true' === $use_include_path_param['clean'] ) {
 					// Setting `$use_include_path` to `true` is only relevant for local files.
-					return;
+					return null;
 				}
 
 				$filename_param = PassedParameters::getParameterFromStack( $params, 1, 'filename' );
 				if ( false === $filename_param ) {
 					// If the file to get is not set, this is a non-issue anyway.
-					return;
+					return null;
 				}
 
 				if ( strpos( $filename_param['clean'], 'http:' ) !== false
@@ -288,7 +290,7 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 				);
 				if ( 1 === $contains_wp_path_constant ) {
 					// Using any of the constants matched in this regex is an indicator of a local file.
-					return;
+					return null;
 				}
 
 				$contains_wp_path_function_call = preg_match(
@@ -297,12 +299,12 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 				);
 				if ( 1 === $contains_wp_path_function_call ) {
 					// Using any of the functions matched in the regex is an indicator of a local file.
-					return;
+					return null;
 				}
 
 				if ( $this->is_local_data_stream( $filename_param['clean'] ) === true ) {
 					// Local data stream.
-					return;
+					return null;
 				}
 
 				unset( $params, $use_include_path_param, $filename_param, $contains_wp_path_constant, $contains_wp_path_function_call );
@@ -326,7 +328,7 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 
 				if ( $this->is_local_data_stream( $filename_param['clean'] ) === true ) {
 					// Local data stream.
-					return;
+					return null;
 				}
 
 				unset( $filename_param );
@@ -341,6 +343,8 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 		if ( $this->wp_version_compare( $this->groups[ $group_name ]['since'], $this->minimum_wp_version, '<=' ) ) {
 			return parent::process_matched_token( $stackPtr, $group_name, $matched_content );
 		}
+
+		return null;
 	}
 
 	/**
@@ -351,7 +355,7 @@ final class AlternativeFunctionsSniff extends AbstractFunctionRestrictionsSniff 
 	 *
 	 * @return bool True if this is a local data stream. False otherwise.
 	 */
-	protected function is_local_data_stream( $clean_param_value ) {
+	protected function is_local_data_stream( string $clean_param_value ): bool {
 
 		$stripped          = TextStrings::stripQuotes( $clean_param_value );
 		$clean_param_value = ltrim( $clean_param_value, '\\' );

@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use PHPCSUtils\Utils\PassedParameters;
@@ -33,7 +35,7 @@ final class WPHookHelper {
 	 * @var array<string, array<string, int|string|string[]>> Function name as key, array with target
 	 *                                                        parameter position and name(s) as value.
 	 */
-	private static $hookInvokeFunctions = array(
+	private static array $hookInvokeFunctions = array(
 		'do_action' => array(
 			'position' => 1,
 			'name'     => 'hook_name',
@@ -71,7 +73,7 @@ final class WPHookHelper {
 	 *
 	 * @return array<string, bool> Array with the function names as keys. The value is irrelevant.
 	 */
-	public static function get_functions( $include_deprecated = true ) {
+	public static function get_functions( bool $include_deprecated = true ): array {
 		$hooks = array_fill_keys( array_keys( self::$hookInvokeFunctions ), true );
 		if ( false === $include_deprecated ) {
 			unset(
@@ -98,7 +100,7 @@ final class WPHookHelper {
 	 *                     See the PHPCSUtils PassedParameters::getParameters() documentation
 	 *                     for the format of the returned (single-dimensional) array.
 	 */
-	public static function get_hook_name_param( $function_name, array $parameters ) {
+	public static function get_hook_name_param( string $function_name, array $parameters ): array|false {
 		$function_lc = ltrim( strtolower( $function_name ), '\\' );
 		if ( isset( self::$hookInvokeFunctions[ $function_lc ] ) === false ) {
 			return false;

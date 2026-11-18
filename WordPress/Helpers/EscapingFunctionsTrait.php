@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Helpers;
 
 use WordPressCS\WordPress\Helpers\RulesetPropertyHelper;
@@ -55,7 +57,7 @@ trait EscapingFunctionsTrait {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $escapingFunctions = array(
+	private array $escapingFunctions = array(
 		'absint'                     => true,
 		'esc_attr__'                 => true,
 		'esc_attr_e'                 => true,
@@ -106,7 +108,7 @@ trait EscapingFunctionsTrait {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $autoEscapedFunctions = array(
+	private array $autoEscapedFunctions = array(
 		'allowed_tags'            => true,
 		'apply_shortcodes'        => true,
 		'bloginfo'                => true,
@@ -183,7 +185,7 @@ trait EscapingFunctionsTrait {
 	 *
 	 * @var array<string, string[]>
 	 */
-	private $addedCustomEscapingFunctions = array(
+	private array $addedCustomEscapingFunctions = array(
 		'escape'     => array(),
 		'autoescape' => array(),
 	);
@@ -195,7 +197,7 @@ trait EscapingFunctionsTrait {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $allEscapingFunctions = array();
+	private array $allEscapingFunctions = array();
 
 	/**
 	 * Combined list of WP native and custom auto-escaping functions.
@@ -204,7 +206,7 @@ trait EscapingFunctionsTrait {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $allAutoEscapedFunctions = array();
+	private array $allAutoEscapedFunctions = array();
 
 	/**
 	 * Check if a particular function is regarded as an escaping function.
@@ -215,7 +217,7 @@ trait EscapingFunctionsTrait {
 	 *
 	 * @return bool
 	 */
-	final public function is_escaping_function( $functionName ) {
+	final public function is_escaping_function( string $functionName ): bool {
 		if ( array() === $this->allEscapingFunctions
 			|| $this->customEscapingFunctions !== $this->addedCustomEscapingFunctions['escape']
 		) {
@@ -239,7 +241,7 @@ trait EscapingFunctionsTrait {
 	 *
 	 * @return bool
 	 */
-	final public function is_auto_escaped_function( $functionName ) {
+	final public function is_auto_escaped_function( string $functionName ): bool {
 		if ( array() === $this->allAutoEscapedFunctions
 			|| $this->customAutoEscapedFunctions !== $this->addedCustomEscapingFunctions['autoescape']
 		) {

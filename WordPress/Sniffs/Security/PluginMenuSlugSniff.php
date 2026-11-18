@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\Security;
 
 use PHPCSUtils\Utils\PassedParameters;
@@ -32,7 +34,7 @@ final class PluginMenuSlugSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @var string
 	 */
-	protected $group_name = 'add_menu_functions';
+	protected string $group_name = 'add_menu_functions';
 
 	/**
 	 * Functions which can be used to add pages to the WP Admin menu.
@@ -48,7 +50,7 @@ final class PluginMenuSlugSniff extends AbstractFunctionParameterSniff {
 	 *                                              Value is an array with parameter positions as the
 	 *                                              keys and parameter names as the values
 	 */
-	protected $target_functions = array(
+	protected array $target_functions = array(
 		'add_comments_page'   => array(
 			4 => 'menu_slug',
 		),
@@ -108,9 +110,9 @@ final class PluginMenuSlugSniff extends AbstractFunctionParameterSniff {
 	 *                                in lowercase.
 	 * @param array  $parameters      Array with information about the parameters.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_parameters( $stackPtr, $group_name, $matched_content, $parameters ) {
+	public function process_parameters( int $stackPtr, string $group_name, string $matched_content, array $parameters ): ?int {
 		foreach ( $this->target_functions[ $matched_content ] as $position => $param_name ) {
 			$found_param = PassedParameters::getParameterFromStack( $parameters, $position, $param_name );
 			if ( false === $found_param ) {
@@ -122,5 +124,7 @@ final class PluginMenuSlugSniff extends AbstractFunctionParameterSniff {
 				$this->phpcsFile->addWarning( 'Using __FILE__ for menu slugs risks exposing filesystem structure.', $file_constant, 'Using__FILE__' );
 			}
 		}
+
+		return null;
 	}
 }

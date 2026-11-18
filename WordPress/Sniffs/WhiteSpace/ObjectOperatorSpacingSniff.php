@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WhiteSpace;
 
 use PHP_CodeSniffer\Files\File;
@@ -31,11 +33,11 @@ final class ObjectOperatorSpacingSniff extends Squiz_ObjectOperatorSpacingSniff 
 	 * @param int                         $stackPtr  The position of the current token
 	 *                                               in the stack passed in $tokens.
 	 *
-	 * @return void|int Optionally returns a stack pointer. The sniff will not be
+	 * @return int|null Optionally returns a stack pointer. The sniff will not be
 	 *                  called again on the current file until the returned stack
 	 *                  pointer is reached.
 	 */
-	public function process( File $phpcsFile, $stackPtr ) {
+	public function process( File $phpcsFile, int $stackPtr ): ?int {
 		$tokens            = $phpcsFile->getTokens();
 		$property_adjusted = false;
 

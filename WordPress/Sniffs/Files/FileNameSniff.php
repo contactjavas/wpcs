@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\Files;
 
 use PHPCSUtils\Tokens\Collections;
@@ -105,7 +107,7 @@ final class FileNameSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	private $hyphenation_exceptions = array(
+	private array $hyphenation_exceptions = array(
 		'class.wp-dependencies.php' => true,
 		'class.wp-scripts.php'      => true,
 		'class.wp-styles.php'       => true,
@@ -121,7 +123,7 @@ final class FileNameSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	private $unittest_hyphenation_exceptions = array(
+	private array $unittest_hyphenation_exceptions = array(
 		'class.wp-dependencies.inc' => true,
 		'class.wp-scripts.inc'      => true,
 		'class.wp-styles.inc'       => true,
@@ -134,7 +136,7 @@ final class FileNameSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		if ( \defined( '\PHP_CODESNIFFER_IN_TESTS' ) ) {
 			$this->hyphenation_exceptions += $this->unittest_hyphenation_exceptions;
 		}
@@ -147,10 +149,10 @@ final class FileNameSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 		$file = FilePath::getName( $this->phpcsFile );
 		if ( 'STDIN' === $file ) {
 			return $this->phpcsFile->numTokens;
@@ -215,7 +217,7 @@ final class FileNameSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function check_filename_is_hyphenated( $file_name ) {
+	protected function check_filename_is_hyphenated( string $file_name ): void {
 		$extension = strrchr( $file_name, '.' );
 		$name      = substr( $file_name, 0, ( strlen( $file_name ) - strlen( $extension ) ) );
 
@@ -250,7 +252,7 @@ final class FileNameSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function check_filename_has_class_prefix( $class_ptr, $file_name ) {
+	protected function check_filename_has_class_prefix( int $class_ptr, string $file_name ): void {
 		$extension  = strrchr( $file_name, '.' );
 		$class_name = ObjectDeclarations::getName( $this->phpcsFile, $class_ptr );
 		$expected   = 'class-' . strtolower( str_replace( '_', '-', $class_name ) ) . $extension;
@@ -280,7 +282,7 @@ final class FileNameSniff extends Sniff {
 	 *
 	 * @return void
 	 */
-	protected function check_filename_for_template_suffix( $stackPtr, $file_name ) {
+	protected function check_filename_for_template_suffix( int $stackPtr, string $file_name ): void {
 		$subpackage_tag = $this->phpcsFile->findNext( \T_DOC_COMMENT_TAG, $stackPtr, null, false, '@subpackage' );
 		if ( false === $subpackage_tag ) {
 			return;

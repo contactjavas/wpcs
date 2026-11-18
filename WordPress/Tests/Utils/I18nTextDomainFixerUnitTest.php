@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Tests\Utils;
 
 use PHP_CodeSniffer\Config;
@@ -31,7 +33,7 @@ final class I18nTextDomainFixerUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @var int
 	 */
-	private $tab_width = 4;
+	private int $tab_width = 4;
 
 	/**
 	 * Set CLI values before the file is tested.
@@ -41,7 +43,7 @@ final class I18nTextDomainFixerUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return void
 	 */
-	public function setCliValues( $testFile, $config ) {
+	public function setCliValues( string $testFile, Config $config ): void {
 		// Tab width setting is only needed for the file with the function calls.
 		if ( 'I18nTextDomainFixerUnitTest.4.inc' === $testFile ) {
 			$config->tabWidth = $this->tab_width;
@@ -57,7 +59,7 @@ final class I18nTextDomainFixerUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected errors.
 	 */
-	public function getErrorList( $testFile = '' ) {
+	public function getErrorList( string $testFile = '' ): array {
 
 		$phpcs_version = Helper::getVersion();
 		$is_phpcs_4    = version_compare( $phpcs_version, '3.99.99', '>' );
@@ -171,7 +173,7 @@ final class I18nTextDomainFixerUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return array<int, int> Key is the line number, value is the number of expected warnings.
 	 */
-	public function getWarningList( $testFile = '' ) {
+	public function getWarningList( string $testFile = '' ): array {
 		switch ( $testFile ) {
 			case 'I18nTextDomainFixerUnitTest.1.inc':
 			case 'I18nTextDomainFixerUnitTest.2.inc':
@@ -212,7 +214,7 @@ final class I18nTextDomainFixerUnitTest extends AbstractSniffUnitTest {
 	 *
 	 * @return void
 	 */
-	public function testStdIn() {
+	public function testStdIn(): void {
 		$config         = new ConfigDouble();
 		$rootDir        = dirname( dirname( dirname( __DIR__ ) ) );
 		$installedPaths = implode(

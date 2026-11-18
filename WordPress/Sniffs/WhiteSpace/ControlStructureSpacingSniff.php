@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\WhiteSpace;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -60,7 +62,7 @@ final class ControlStructureSpacingSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	private $ignore_extra_space_after_open_paren = array(
+	private array $ignore_extra_space_after_open_paren = array(
 		\T_DO      => true,
 		\T_ELSE    => true,
 		\T_TRY     => true,
@@ -72,7 +74,7 @@ final class ControlStructureSpacingSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		return array(
 			\T_IF,
 			\T_WHILE,
@@ -94,9 +96,9 @@ final class ControlStructureSpacingSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 		if ( isset( $this->tokens[ ( $stackPtr + 1 ) ] ) && \T_WHITESPACE !== $this->tokens[ ( $stackPtr + 1 ) ]['code']
 			&& ! ( \T_ELSE === $this->tokens[ $stackPtr ]['code'] && \T_COLON === $this->tokens[ ( $stackPtr + 1 ) ]['code'] )
 		) {
@@ -110,7 +112,7 @@ final class ControlStructureSpacingSniff extends Sniff {
 
 		if ( ! isset( $this->tokens[ $stackPtr ]['scope_opener'], $this->tokens[ $stackPtr ]['scope_closer'] ) ) {
 			if ( \T_WHILE !== $this->tokens[ $stackPtr ]['code'] ) {
-				return;
+				return null;
 			}
 		} else {
 			$scopeOpener = $this->tokens[ $stackPtr ]['scope_opener'];
@@ -263,7 +265,7 @@ final class ControlStructureSpacingSniff extends Sniff {
 					$this->phpcsFile->fixer->addContent( $parenthesisCloser, ' ' );
 					$this->phpcsFile->fixer->endChangeset();
 				}
-				return;
+				return null;
 
 			} elseif ( \T_WHITESPACE === $this->tokens[ ( $parenthesisCloser + 1 ) ]['code']
 				&& ' ' !== $this->tokens[ ( $parenthesisCloser + 1 ) ]['content']
@@ -298,7 +300,7 @@ final class ControlStructureSpacingSniff extends Sniff {
 				&& $this->tokens[ $firstContent ]['line'] > ( $this->tokens[ $scopeOpener ]['line'] + 1 )
 			) {
 				$gap = ( $this->tokens[ $firstContent ]['line'] - $this->tokens[ $scopeOpener ]['line'] - 1 );
-				$this->phpcsFile->recordMetric( $stackPtr, 'Blank lines at start of control structure', $gap );
+				$this->phpcsFile->recordMetric( $stackPtr, 'Blank lines at start of control structure', (string) $gap );
 
 				$error = 'Blank line found at start of control structure';
 				$fix   = $this->phpcsFile->addFixableError( $error, $scopeOpener, 'BlankLineAfterStart' );
@@ -317,7 +319,7 @@ final class ControlStructureSpacingSniff extends Sniff {
 					$this->phpcsFile->fixer->endChangeset();
 				}
 			} else {
-				$this->phpcsFile->recordMetric( $stackPtr, 'Blank lines at start of control structure', 0 );
+				$this->phpcsFile->recordMetric( $stackPtr, 'Blank lines at start of control structure', '0' );
 			}
 
 			if ( isset( $scopeCloser ) && $firstContent !== $scopeCloser ) {
@@ -334,7 +336,7 @@ final class ControlStructureSpacingSniff extends Sniff {
 					&& $this->tokens[ $lastContent ]['line'] <= ( $this->tokens[ $scopeCloser ]['line'] - 2 )
 				) {
 					$gap = ( $this->tokens[ $scopeCloser ]['line'] - $this->tokens[ $lastContent ]['line'] - 1 );
-					$this->phpcsFile->recordMetric( $stackPtr, 'Blank lines at end of control structure', $gap );
+					$this->phpcsFile->recordMetric( $stackPtr, 'Blank lines at end of control structure', (string) $gap );
 
 					for ( $i = ( $scopeCloser - 1 ); $i > $lastContent; $i-- ) {
 						if ( $this->tokens[ $i ]['line'] < $this->tokens[ $scopeCloser ]['line']
@@ -370,14 +372,14 @@ final class ControlStructureSpacingSniff extends Sniff {
 						}
 					}
 				} else {
-					$this->phpcsFile->recordMetric( $stackPtr, 'Blank lines at end of control structure', 0 );
+					$this->phpcsFile->recordMetric( $stackPtr, 'Blank lines at end of control structure', '0' );
 				}
 			}
 			unset( $ignore );
 		}
 
 		if ( ! isset( $scopeCloser ) || true !== $this->blank_line_after_check ) {
-			return;
+			return null;
 		}
 
 		if ( \T_MATCH === $this->tokens[ $stackPtr ]['code'] ) {
@@ -394,7 +396,7 @@ final class ControlStructureSpacingSniff extends Sniff {
 		// not "other" empty tokens.}}
 		$trailingContent = $this->phpcsFile->findNext( \T_WHITESPACE, ( $scopeCloser + 1 ), null, true );
 		if ( false === $trailingContent ) {
-			return;
+			return null;
 		}
 
 		if ( \T_COMMENT === $this->tokens[ $trailingContent ]['code']
@@ -419,32 +421,32 @@ final class ControlStructureSpacingSniff extends Sniff {
 
 		if ( \T_ELSE === $this->tokens[ $trailingContent ]['code'] && \T_IF === $this->tokens[ $stackPtr ]['code'] ) {
 			// IF with ELSE.
-			return;
+			return null;
 		}
 
 		if ( \T_WHILE === $this->tokens[ $trailingContent ]['code'] && \T_DO === $this->tokens[ $stackPtr ]['code'] ) {
 			// DO with WHILE.
-			return;
+			return null;
 		}
 
 		if ( \T_CATCH === $this->tokens[ $trailingContent ]['code'] && \T_TRY === $this->tokens[ $stackPtr ]['code'] ) {
 			// TRY with CATCH.
-			return;
+			return null;
 		}
 
 		if ( \T_FINALLY === $this->tokens[ $trailingContent ]['code'] && \T_CATCH === $this->tokens[ $stackPtr ]['code'] ) {
 			// CATCH with FINALLY.
-			return;
+			return null;
 		}
 
 		if ( \T_FINALLY === $this->tokens[ $trailingContent ]['code'] && \T_TRY === $this->tokens[ $stackPtr ]['code'] ) {
 			// TRY with FINALLY.
-			return;
+			return null;
 		}
 
 		if ( \T_CLOSE_TAG === $this->tokens[ $trailingContent ]['code'] ) {
 			// At the end of the script or embedded code.
-			return;
+			return null;
 		}
 
 		if ( isset( $this->tokens[ $trailingContent ]['scope_condition'] )
@@ -455,7 +457,7 @@ final class ControlStructureSpacingSniff extends Sniff {
 			if ( isset( Collections::closedScopes()[ $this->tokens[ $owner ]['code'] ] ) === true ) {
 				// The next content is the closing brace of a function, class, interface or trait
 				// so normal function/class rules apply and we can ignore it.
-				return;
+				return null;
 			}
 
 			if ( ( $this->tokens[ $scopeCloser ]['line'] + 1 ) !== $this->tokens[ $trailingContent ]['line'] ) {
@@ -482,5 +484,7 @@ final class ControlStructureSpacingSniff extends Sniff {
 				}
 			}
 		}
+
+		return null;
 	}
 }

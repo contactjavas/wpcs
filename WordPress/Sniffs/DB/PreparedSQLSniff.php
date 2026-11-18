@@ -7,6 +7,8 @@
  * @license https://opensource.org/licenses/MIT MIT
  */
 
+declare( strict_types=1 );
+
 namespace WordPressCS\WordPress\Sniffs\DB;
 
 use PHP_CodeSniffer\Util\Tokens;
@@ -40,7 +42,7 @@ final class PreparedSQLSniff extends Sniff {
 	 *
 	 * @var array<string, bool>
 	 */
-	protected $methods = array(
+	protected array $methods = array(
 		'get_var'     => true,
 		'get_col'     => true,
 		'get_row'     => true,
@@ -59,7 +61,7 @@ final class PreparedSQLSniff extends Sniff {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $SQLEscapingFunctions = array(
+	private array $SQLEscapingFunctions = array(
 		'absint'      => true,
 		'esc_sql'     => true,
 		'floatval'    => true,
@@ -77,7 +79,7 @@ final class PreparedSQLSniff extends Sniff {
 	 *
 	 * @var array<string, bool>
 	 */
-	private $SQLAutoEscapedFunctions = array(
+	private array $SQLAutoEscapedFunctions = array(
 		'count' => true,
 	);
 
@@ -91,7 +93,7 @@ final class PreparedSQLSniff extends Sniff {
 	 *
 	 * @var array
 	 */
-	private $ignored_tokens = array(
+	private array $ignored_tokens = array(
 		\T_STRING_CONCAT            => true,
 		\T_CONSTANT_ENCAPSED_STRING => true,
 		\T_COMMA                    => true,
@@ -109,7 +111,7 @@ final class PreparedSQLSniff extends Sniff {
 	 *
 	 * @var int
 	 */
-	protected $i;
+	protected ?int $i = null;
 
 	/**
 	 * The loop end marker.
@@ -120,7 +122,7 @@ final class PreparedSQLSniff extends Sniff {
 	 *
 	 * @var int
 	 */
-	protected $end;
+	protected ?int $end = null;
 
 	/**
 	 * Returns an array of tokens this test wants to listen for.
@@ -129,7 +131,7 @@ final class PreparedSQLSniff extends Sniff {
 	 *
 	 * @return array
 	 */
-	public function register() {
+	public function register(): array {
 		// Enrich the array of tokens which can be safely ignored.
 		$this->ignored_tokens += Tokens::$bracketTokens;
 		$this->ignored_tokens += Tokens::$heredocTokens;
@@ -158,13 +160,13 @@ final class PreparedSQLSniff extends Sniff {
 	 *
 	 * @param int $stackPtr The position of the current token in the stack.
 	 *
-	 * @return int|void Integer stack pointer to skip forward or void to continue
+	 * @return int|null Integer stack pointer to skip forward or null to continue
 	 *                  normal file processing.
 	 */
-	public function process_token( $stackPtr ) {
+	public function process_token( int $stackPtr ): ?int {
 
 		if ( ! $this->is_wpdb_method_call( $this->phpcsFile, $stackPtr, $this->methods ) ) {
-			return;
+			return null;
 		}
 
 		for ( $this->i; $this->i < $this->end; $this->i++ ) {
